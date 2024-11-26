@@ -9,8 +9,8 @@ import (
 type Logger struct {
 }
 
-func (*Logger) LogError(str string) {
-	slog.Error(str)
+func (*Logger) LogError(err error) {
+	slog.Error(err.Error())
 }
 
 func (*Logger) LogInfo(str string) {

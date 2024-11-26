@@ -17,20 +17,21 @@ func Run() {
 
 	ds := deliverysystem.NewMockDeliverySystem()
 	consumer := kafkahandler.GetKafkaReader(kafkaURL, topic, groupID)
+	logger := logger.Logger{} //TODO in pkg init
 	defer consumer.Close()
 
 	for {
 		m, err := consumer.ReadMessage(context.Background())
 		if err != nil {
-			logger.WriteLog(err.Error()) //TODO
+			logger.LogError(err)
 		}
-		if string(m.Value) == "Success" { //TODO
+		if string(m.Value) != "Success" { //TODO
 
 		}
 		str := "Hello, mr Penis payment completed" //TODO
 		bytes, err := json.Marshal(str)
 		if err != nil {
-			logger.WriteLog(err.Error()) //TODO
+			logger.LogError(err)
 		}
 		ds.SendMessage(bytes) //
 	}
