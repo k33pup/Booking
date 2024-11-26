@@ -12,7 +12,7 @@ import (
 
 func Run() {
 	kafkaURL := os.Getenv("kafkaURL")
-	topic := os.Getenv("topic")
+	topic := os.Getenv("notificationTopic")
 	groupID := os.Getenv("groupID")
 
 	ds := deliverysystem.NewMockDeliverySystem()

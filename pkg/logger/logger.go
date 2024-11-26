@@ -1,12 +1,18 @@
 package logger
 
 import (
-	"log"
+	"log/slog"
 )
 
 //mock logger -> Grafana (future)
 
-func WriteLog(str string) error {
-	log.Fatalln(str)
-	return nil
+type Logger struct {
+}
+
+func (*Logger) LogError(str string) {
+	slog.Error(str)
+}
+
+func (*Logger) LogInfo(str string) {
+	slog.Info(str)
 }
