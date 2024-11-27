@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"github.com/k33pup/Booking.git/internal/booking/domain"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"time"
 )
 
 type BookedRoomRepository struct {
@@ -16,17 +18,41 @@ func NewBookedRoomRepository(dsn string) (*BookedRoomRepository, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	err = db.AutoMigrate(&domain.BookedRoom{})
+	if err != nil {
+		panic("Failed to run migrations: " + err.Error())
+	}
+
 	return &BookedRoomRepository{db: db}, nil
 }
 
 func (r *BookedRoomRepository) BookRoom(ctx context.Context, room *domain.BookedRoom) error {
+	if err := r.db.Table("booked_rooms").Create(room).Error; err != nil {
+		return fmt.Errorf("adding file to database: %v", err)
+	}
 	return nil
 }
 
 func (r *BookedRoomRepository) GetBookedRoomsList(ctx context.Context, hotelId string) ([]domain.BookedRoom, error) {
-	return nil, nil
+	var bookedRooms []domain.BookedRoom
+
+	if err := r.db.Table("files").Find(&bookedRooms).Error; err != nil {
+		return nil, fmt.Errorf("error retrieving rooms list from database: %v", err)
+	}
+
+	return bookedRooms, nil
 }
 
 func (r *BookedRoomRepository) IsRoomBooked(ctx context.Context, roomID string) (bool, error) {
-	return false, nil
+	var count int64
+	currentDate := time.Now()
+
+	if err := r.db.Table("booked_rooms").
+		Where("id = ? AND exit > ?", roomID, currentDate).
+		Count(&count).Error; err != nil {
+		return false, fmt.Errorf("error checking room booking status: %v", err)
+	}
+
+	return count > 0, nil
 }
