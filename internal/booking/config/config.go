@@ -47,3 +47,23 @@ func GetDsnString() (string, error) {
 
 	return dsn, nil
 }
+
+type ServerConfig struct {
+	Port string
+	Host string
+}
+
+func LoadServerConfig() (ServerConfig, error) {
+	viper.SetConfigFile(".env")
+	viper.AutomaticEnv()
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		return ServerConfig{}, err
+	}
+
+	return ServerConfig{
+		Port: viper.GetString("SERVER_PORT"),
+		Host: viper.GetString("SERVER_HOST"),
+	}, nil
+}

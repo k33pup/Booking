@@ -10,4 +10,5 @@ type BookedRoom struct {
 	Price       int
 	Entry       time.Time
 	Exit        time.Time
+	Email       string
 }

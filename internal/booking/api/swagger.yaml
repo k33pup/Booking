@@ -1,0 +1,116 @@
+openapi: 3.0.0
+info:
+  title: Hotel Booking API
+  version: 1.0.0
+  description: API for fetching and booking rooms by hotel ID.
+paths:
+  /booked-rooms/{hotel_id}:
+    get:
+      summary: Get booked rooms by hotel ID
+      parameters:
+        - name: hotel_id
+          in: path
+          required: true
+          description: ID of the hotel
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of booked rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookedRoom'
+        '404':
+          description: Hotel not found
+  /unbooked-rooms/{hotel_id}:
+    get:
+      summary: Get unbooked rooms by hotel ID
+      parameters:
+        - name: hotel_id
+          in: path
+          required: true
+          description: ID of the hotel
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of unbooked rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookedRoom'
+        '404':
+          description: Hotel not found
+  /book-room/{room_id}:
+    post:
+      summary: Book a room by ID
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          description: ID of the room to book
+          schema:
+            type: string
+        - name: Entry
+          in: query
+          required: true
+          description: Check-in date
+          schema:
+            type: string
+            format: date-time
+        - name: Exit
+          in: query
+          required: true
+          description: Check-out date
+          schema:
+            type: string
+            format: date-time
+        - name: Email
+          in: query
+          required: true
+          description: Guest's email address
+          schema:
+            type: string
+            format: email
+      responses:
+        '201':
+          description: Room successfully booked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookedRoom'
+        '400':
+          description: Invalid request
+        '404':
+          description: Room not found
+
+components:
+  schemas:
+    BookedRoom:
+      type: object
+      properties:
+        ID:
+          type: string
+        HotelID:
+          type: string
+        Name:
+          type: string
+        Description:
+          type: string
+        Price:
+          type: integer
+        Entry:
+          type: string
+          format: date-time
+        Exit:
+          type: string
+          format: date-time
+        Email:
+          type: string
+          format: email
+          description: Email of the guest
