@@ -118,6 +118,15 @@ func (c *DefaultAPIController) BookRoomRoomIdPost(w http.ResponseWriter, r *http
 		c.errorHandler(w, r, &RequiredError{"room_id"}, nil)
 		return
 	}
+	var hotelIdParam string
+	if query.Has("hotelId") {
+		param := query.Get("hotelId")
+
+		hotelIdParam = param
+	} else {
+		c.errorHandler(w, r, &RequiredError{Field: "hotelId"}, nil)
+		return
+	}
 	var entryParam time.Time
 	if query.Has("Entry"){
 		param, err := parseTime(query.Get("Entry"))
@@ -153,7 +162,7 @@ func (c *DefaultAPIController) BookRoomRoomIdPost(w http.ResponseWriter, r *http
 		c.errorHandler(w, r, &RequiredError{Field: "Email"}, nil)
 		return
 	}
-	result, err := c.service.BookRoomRoomIdPost(r.Context(), roomIdParam, entryParam, exitParam, emailParam)
+	result, err := c.service.BookRoomRoomIdPost(r.Context(), roomIdParam, hotelIdParam, entryParam, exitParam, emailParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

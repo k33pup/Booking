@@ -64,6 +64,12 @@ paths:
           description: ID of the room to book
           schema:
             type: string
+        - name: hotelId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: hotel id
         - name: Entry
           in: query
           required: true

@@ -69,6 +69,14 @@ paths:
         schema:
           type: string
         style: simple
+      - description: hotel id
+        explode: true
+        in: query
+        name: hotelId
+        required: true
+        schema:
+          type: string
+        style: form
       - description: Check-in date
         explode: true
         in: query

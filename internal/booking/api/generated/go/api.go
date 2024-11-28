@@ -35,5 +35,5 @@ type DefaultAPIRouter interface {
 type DefaultAPIServicer interface { 
 	GetUnbookedRooms(context.Context, string) (ImplResponse, error)
 	GetBookedRooms(context.Context, string) (ImplResponse, error)
-	BookRoomRoomIdPost(context.Context, string, time.Time, time.Time, string) (ImplResponse, error)
+	BookRoomRoomIdPost(context.Context, string, string, time.Time, time.Time, string) (ImplResponse, error)
 }

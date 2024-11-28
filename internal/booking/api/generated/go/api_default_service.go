@@ -30,7 +30,6 @@ func NewDefaultAPIService(useCase usecases.IBookedRoomRepository) *DefaultAPISer
 	return &DefaultAPIService{useCase}
 }
 
-
 // GetUnbookedRooms - Получить список свободных комнат по ID отеля
 func (s *DefaultAPIService) GetUnbookedRooms(ctx context.Context, hotelId string) (ImplResponse, error) {
 	// TODO - update GetUnbookedRooms with the required logic for this service method.
@@ -66,7 +65,7 @@ func (s *DefaultAPIService) GetBookedRooms(ctx context.Context, hotelId string) 
 }
 
 // BookRoomRoomIdPost - Book a room by ID
-func (s *DefaultAPIService) BookRoomRoomIdPost(ctx context.Context, roomId string, entry time.Time, exit time.Time, email string) (ImplResponse, error) {
+func (s *DefaultAPIService) BookRoomRoomIdPost(ctx context.Context, roomId string, hotelId string, entry time.Time, exit time.Time, email string) (ImplResponse, error) {
 	// TODO - update BookRoomRoomIdPost with the required logic for this service method.
 	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
