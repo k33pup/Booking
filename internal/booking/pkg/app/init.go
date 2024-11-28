@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"github.com/k33pup/Booking.git/internal/booking/config"
 	"github.com/k33pup/Booking.git/internal/booking/pkg/api/http"
 	"github.com/k33pup/Booking.git/internal/booking/pkg/repository"
@@ -25,4 +26,12 @@ func NewBookingService() (*BookingService, error) {
 	useCase := usecases.NewBookedRoomUseCase(repo)
 	server := http.NewServer(useCase)
 	return &BookingService{server: server, useCase: useCase, repo: repo}, nil
+}
+
+func (b *BookingService) Start(ctx context.Context) error {
+	err := b.server.Start(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }
