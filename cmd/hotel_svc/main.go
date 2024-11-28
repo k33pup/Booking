@@ -2,25 +2,42 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/k33pup/Booking.git/internal/hotel/pkg/app"
-	logBase "log"
+	"github.com/k33pup/Booking.git/internal/hotel/pkg/config"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	ctxWithCancel, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	service := app.NewHotelService()
+	cfg := config.NewConfig()
 
-	if err := service.Init(ctxWithCancel); err != nil {
-		logBase.Fatal("start app failed")
+	hotelService := app.NewHotelService(cfg)
+
+	if err := hotelService.Init(ctx); err != nil {
+		panic(err)
 	}
 
-	if err := service.Start(ctxWithCancel); err != nil {
-		logBase.Fatal("start app failed")
+	if err := hotelService.Start(ctx); err != nil {
+		panic(err)
 	}
 
-	if err := service.Stop(ctxWithCancel); err != nil {
-		logBase.Fatalf("stop app failed")
-	}
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-signalChan
+		fmt.Println("Received termination signal. Shutting down...")
+		if err := hotelService.Stop(ctx); err != nil {
+			fmt.Println("Error during shutdown: ", err.Error())
+		}
+		cancel()
+	}()
+
+	hotelService.Wait(ctx)
+	fmt.Println("Hotel service stopped. Exiting...")
 }

@@ -5,5 +5,5 @@ type Room struct {
 	HotelID     string
 	Name        string
 	Description string
-	Price       int
+	Price       uint64
 }

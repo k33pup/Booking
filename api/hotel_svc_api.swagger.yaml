@@ -1,0 +1,308 @@
+swagger: "2.0"
+info:
+  title: Hotel service
+  version: version not set
+tags:
+  - name: HotelService
+    description: Service to work with hotels
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /hotels:
+    get:
+      summary: Get the hotel list
+      operationId: HotelService_GetHotelsList
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetHotelsListResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - HotelService
+    delete:
+      summary: Delete existing hotel
+      operationId: HotelService_DeleteHotel
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1DeleteHotelResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: hotelId
+          description: Hotel id
+          in: query
+          required: false
+          type: string
+      tags:
+        - HotelService
+    post:
+      summary: Create new hotel
+      operationId: HotelService_CreateHotel
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1CreateHotelResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1CreateHotelRequest'
+      tags:
+        - HotelService
+  /hotels/{hotelId}:
+    get:
+      summary: Get exact hotel by id
+      operationId: HotelService_GetHotelById
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetHotelByIdResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: hotelId
+          description: Hotel id
+          in: path
+          required: true
+          type: string
+      tags:
+        - HotelService
+  /hotels/{hotelId}/rooms:
+    get:
+      summary: Get all rooms in exact hotel
+      operationId: HotelService_GetRoomsByHotelId
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetRoomsByHotelIdResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          type: string
+      tags:
+        - HotelService
+  /rooms:
+    delete:
+      summary: Delete exact room
+      operationId: HotelService_DeleteRoom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1DeleteRoomResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: roomId
+          description: Room id
+          in: query
+          required: false
+          type: string
+      tags:
+        - HotelService
+    post:
+      summary: Create new room
+      operationId: HotelService_CreateRoom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1CreateRoomResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1CreateRoomRequest'
+      tags:
+        - HotelService
+  /rooms/{roomId}:
+    get:
+      summary: Get exact room by id
+      operationId: HotelService_GetRoomById
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetRoomByIdResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          type: string
+      tags:
+        - HotelService
+definitions:
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/protobufAny'
+  v1CreateHotelRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        title: Hotel name
+      description:
+        type: string
+        title: Hotel description
+      city:
+        type: string
+        title: Hotel city
+      address:
+        type: string
+        title: Hotel address
+  v1CreateHotelResponse:
+    type: object
+    properties:
+      hotel:
+        $ref: '#/definitions/v1Hotel'
+        title: Hotel
+  v1CreateRoomRequest:
+    type: object
+    properties:
+      hotelId:
+        type: string
+        title: Hotel ID
+      name:
+        type: string
+        title: Room name
+      description:
+        type: string
+        title: Room description
+      price:
+        type: string
+        format: uint64
+        title: Room price per night
+  v1CreateRoomResponse:
+    type: object
+    properties:
+      room:
+        $ref: '#/definitions/v1Room'
+  v1DeleteHotelResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+        title: Operation success
+  v1DeleteRoomResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+        title: Operation success
+  v1GetHotelByIdResponse:
+    type: object
+    properties:
+      hotel:
+        $ref: '#/definitions/v1Hotel'
+        title: Hotel
+  v1GetHotelsListResponse:
+    type: object
+    properties:
+      hotels:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Hotel'
+        title: Hotels list
+  v1GetRoomByIdResponse:
+    type: object
+    properties:
+      room:
+        $ref: '#/definitions/v1Room'
+  v1GetRoomsByHotelIdResponse:
+    type: object
+    properties:
+      rooms:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Room'
+  v1Hotel:
+    type: object
+    properties:
+      hotelId:
+        type: string
+        title: Hotel ID
+      name:
+        type: string
+        title: Hotel name
+      description:
+        type: string
+        title: Hotel description
+      city:
+        type: string
+        title: Hotel city
+      address:
+        type: string
+        title: Hotel address
+  v1Room:
+    type: object
+    properties:
+      roomId:
+        type: string
+        title: Room ID
+      hotelId:
+        type: string
+        title: Hotel ID
+      name:
+        type: string
+        title: Room name
+      description:
+        type: string
+        title: Room description
+      price:
+        type: string
+        format: uint64
+        title: Room price per night
