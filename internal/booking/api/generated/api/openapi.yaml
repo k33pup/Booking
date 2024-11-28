@@ -58,6 +58,56 @@ paths:
         "500":
           description: Внутренняя ошибка сервера
       summary: Получить список забронированных комнат по ID отеля
+  /book-room/{room_id}:
+    post:
+      parameters:
+      - description: ID of the room to book
+        explode: false
+        in: path
+        name: room_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Check-in date
+        explode: true
+        in: query
+        name: Entry
+        required: true
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Check-out date
+        explode: true
+        in: query
+        name: Exit
+        required: true
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Guest's email address
+        explode: true
+        in: query
+        name: Email
+        required: true
+        schema:
+          format: email
+          type: string
+        style: form
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookedRoom'
+          description: Room successfully booked
+        "400":
+          description: Invalid request
+        "404":
+          description: Room not found
+      summary: Book a room by ID
 components:
   schemas:
     Room:

@@ -13,6 +13,7 @@ package openapi
 import (
 	"context"
 	"net/http"
+	"time"
 )
 
 
@@ -23,6 +24,7 @@ import (
 type DefaultAPIRouter interface { 
 	GetUnbookedRooms(http.ResponseWriter, *http.Request)
 	GetBookedRooms(http.ResponseWriter, *http.Request)
+	BookRoomRoomIdPost(http.ResponseWriter, *http.Request)
 }
 
 
@@ -33,4 +35,5 @@ type DefaultAPIRouter interface {
 type DefaultAPIServicer interface { 
 	GetUnbookedRooms(context.Context, string) (ImplResponse, error)
 	GetBookedRooms(context.Context, string) (ImplResponse, error)
+	BookRoomRoomIdPost(context.Context, string, time.Time, time.Time, string) (ImplResponse, error)
 }
