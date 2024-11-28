@@ -3,7 +3,7 @@
 /*
  * Hotel Booking API
  *
- * API for fetching and booking rooms by hotel ID.
+ * API для управления бронированием отелей
  *
  * API version: 1.0.0
  */
@@ -15,7 +15,6 @@ import (
 	"github.com/k33pup/Booking.git/internal/booking/usecases"
 	"net/http"
 	"errors"
-	"time"
 )
 
 // DefaultAPIService is a service that implements the logic for the DefaultAPIServicer
@@ -30,9 +29,26 @@ func NewDefaultAPIService(useCase usecases.IBookedRoomRepository) *DefaultAPISer
 	return &DefaultAPIService{useCase}
 }
 
-// BookedRoomsHotelIdGet - Get booked rooms by hotel ID
-func (s *DefaultAPIService) BookedRoomsHotelIdGet(ctx context.Context, hotelId string) (ImplResponse, error) {
-	// TODO - update BookedRoomsHotelIdGet with the required logic for this service method.
+// GetUnbookedRooms - Получить список свободных комнат по ID отеля
+func (s *DefaultAPIService) GetUnbookedRooms(ctx context.Context, hotelId string) (ImplResponse, error) {
+	// TODO - update GetUnbookedRooms with the required logic for this service method.
+	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(200, []Room{}) or use other options such as http.Ok ...
+	// return Response(200, []Room{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
+	// return Response(404, nil),nil
+
+	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
+	// return Response(500, nil),nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("GetUnbookedRooms method not implemented")
+}
+
+// GetBookedRooms - Получить список забронированных комнат по ID отеля
+func (s *DefaultAPIService) GetBookedRooms(ctx context.Context, hotelId string) (ImplResponse, error) {
+	// TODO - update GetBookedRooms with the required logic for this service method.
 	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []BookedRoom{}) or use other options such as http.Ok ...
@@ -41,36 +57,8 @@ func (s *DefaultAPIService) BookedRoomsHotelIdGet(ctx context.Context, hotelId s
 	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
 	// return Response(404, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("BookedRoomsHotelIdGet method not implemented")
-}
+	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
+	// return Response(500, nil),nil
 
-// UnbookedRoomsHotelIdGet - Get unbooked rooms by hotel ID
-func (s *DefaultAPIService) UnbookedRoomsHotelIdGet(ctx context.Context, hotelId string) (ImplResponse, error) {
-	// TODO - update UnbookedRoomsHotelIdGet with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	// TODO: Uncomment the next line to return response Response(200, []BookedRoom{}) or use other options such as http.Ok ...
-	// return Response(200, []BookedRoom{}), nil
-
-	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	// return Response(404, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("UnbookedRoomsHotelIdGet method not implemented")
-}
-
-// BookRoomRoomIdPost - Book a room by ID
-func (s *DefaultAPIService) BookRoomRoomIdPost(ctx context.Context, roomId string, entry time.Time, exit time.Time, email string) (ImplResponse, error) {
-	// TODO - update BookRoomRoomIdPost with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	// TODO: Uncomment the next line to return response Response(201, BookedRoom{}) or use other options such as http.Ok ...
-	// return Response(201, BookedRoom{}), nil
-
-	// TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	// return Response(400, nil),nil
-
-	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	// return Response(404, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("BookRoomRoomIdPost method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("GetBookedRooms method not implemented")
 }

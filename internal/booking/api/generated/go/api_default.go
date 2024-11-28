@@ -3,7 +3,7 @@
 /*
  * Hotel Booking API
  *
- * API for fetching and booking rooms by hotel ID.
+ * API для управления бронированием отелей
  *
  * API version: 1.0.0
  */
@@ -13,7 +13,6 @@ package openapi
 import (
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -51,33 +50,28 @@ func NewDefaultAPIController(s DefaultAPIServicer, opts ...DefaultAPIOption) *De
 // Routes returns all the api routes for the DefaultAPIController
 func (c *DefaultAPIController) Routes() Routes {
 	return Routes{
-		"BookedRoomsHotelIdGet": Route{
-			strings.ToUpper("Get"),
-			"/booked-rooms/{hotel_id}",
-			c.BookedRoomsHotelIdGet,
-		},
-		"UnbookedRoomsHotelIdGet": Route{
+		"GetUnbookedRooms": Route{
 			strings.ToUpper("Get"),
 			"/unbooked-rooms/{hotel_id}",
-			c.UnbookedRoomsHotelIdGet,
+			c.GetUnbookedRooms,
 		},
-		"BookRoomRoomIdPost": Route{
-			strings.ToUpper("Post"),
-			"/book-room/{room_id}",
-			c.BookRoomRoomIdPost,
+		"GetBookedRooms": Route{
+			strings.ToUpper("Get"),
+			"/booked-rooms/{hotel_id}",
+			c.GetBookedRooms,
 		},
 	}
 }
 
-// BookedRoomsHotelIdGet - Get booked rooms by hotel ID
-func (c *DefaultAPIController) BookedRoomsHotelIdGet(w http.ResponseWriter, r *http.Request) {
+// GetUnbookedRooms - Получить список свободных комнат по ID отеля
+func (c *DefaultAPIController) GetUnbookedRooms(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	hotelIdParam := params["hotel_id"]
 	if hotelIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"hotel_id"}, nil)
 		return
 	}
-	result, err := c.service.BookedRoomsHotelIdGet(r.Context(), hotelIdParam)
+	result, err := c.service.GetUnbookedRooms(r.Context(), hotelIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -87,73 +81,15 @@ func (c *DefaultAPIController) BookedRoomsHotelIdGet(w http.ResponseWriter, r *h
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UnbookedRoomsHotelIdGet - Get unbooked rooms by hotel ID
-func (c *DefaultAPIController) UnbookedRoomsHotelIdGet(w http.ResponseWriter, r *http.Request) {
+// GetBookedRooms - Получить список забронированных комнат по ID отеля
+func (c *DefaultAPIController) GetBookedRooms(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	hotelIdParam := params["hotel_id"]
 	if hotelIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"hotel_id"}, nil)
 		return
 	}
-	result, err := c.service.UnbookedRoomsHotelIdGet(r.Context(), hotelIdParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
-	}
-	// If no error, encode the body and the result code
-	_ = EncodeJSONResponse(result.Body, &result.Code, w)
-}
-
-// BookRoomRoomIdPost - Book a room by ID
-func (c *DefaultAPIController) BookRoomRoomIdPost(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	query, err := parseQuery(r.URL.RawQuery)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
-	}
-	roomIdParam := params["room_id"]
-	if roomIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"room_id"}, nil)
-		return
-	}
-	var entryParam time.Time
-	if query.Has("Entry"){
-		param, err := parseTime(query.Get("Entry"))
-		if err != nil {
-			c.errorHandler(w, r, &ParsingError{Param: "Entry", Err: err}, nil)
-			return
-		}
-
-		entryParam = param
-	} else {
-		c.errorHandler(w, r, &RequiredError{"Entry"}, nil)
-		return
-	}
-	var exitParam time.Time
-	if query.Has("Exit"){
-		param, err := parseTime(query.Get("Exit"))
-		if err != nil {
-			c.errorHandler(w, r, &ParsingError{Param: "Exit", Err: err}, nil)
-			return
-		}
-
-		exitParam = param
-	} else {
-		c.errorHandler(w, r, &RequiredError{"Exit"}, nil)
-		return
-	}
-	var emailParam string
-	if query.Has("Email") {
-		param := query.Get("Email")
-
-		emailParam = param
-	} else {
-		c.errorHandler(w, r, &RequiredError{Field: "Email"}, nil)
-		return
-	}
-	result, err := c.service.BookRoomRoomIdPost(r.Context(), roomIdParam, entryParam, exitParam, emailParam)
+	result, err := c.service.GetBookedRooms(r.Context(), hotelIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

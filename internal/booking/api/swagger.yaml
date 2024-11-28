@@ -1,43 +1,48 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: Hotel Booking API
   version: 1.0.0
-  description: API for fetching and booking rooms by hotel ID.
+  description: API для управления бронированием отелей
+
 paths:
-  /booked-rooms/{hotel_id}:
-    get:
-      summary: Get booked rooms by hotel ID
-      parameters:
-        - name: hotel_id
-          in: path
-          required: true
-          description: ID of the hotel
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of booked rooms
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BookedRoom'
-        '404':
-          description: Hotel not found
   /unbooked-rooms/{hotel_id}:
     get:
-      summary: Get unbooked rooms by hotel ID
+      summary: Получить список свободных комнат по ID отеля
+      operationId: getUnbookedRooms
       parameters:
         - name: hotel_id
           in: path
           required: true
-          description: ID of the hotel
+          description: ID отеля
           schema:
             type: string
       responses:
         '200':
-          description: List of unbooked rooms
+          description: Список свободных комнат
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+        '404':
+          description: Отель или комнаты не найдены
+        '500':
+          description: Внутренняя ошибка сервера
+  /booked-rooms/{hotel_id}:
+    get:
+      summary: Получить список забронированных комнат по ID отеля
+      operationId: getBookedRooms
+      parameters:
+        - name: hotel_id
+          in: path
+          required: true
+          description: ID отеля
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список забронированных комнат
           content:
             application/json:
               schema:
@@ -45,72 +50,60 @@ paths:
                 items:
                   $ref: '#/components/schemas/BookedRoom'
         '404':
-          description: Hotel not found
-  /book-room/{room_id}:
-    post:
-      summary: Book a room by ID
-      parameters:
-        - name: room_id
-          in: path
-          required: true
-          description: ID of the room to book
-          schema:
-            type: string
-        - name: Entry
-          in: query
-          required: true
-          description: Check-in date
-          schema:
-            type: string
-            format: date-time
-        - name: Exit
-          in: query
-          required: true
-          description: Check-out date
-          schema:
-            type: string
-            format: date-time
-        - name: Email
-          in: query
-          required: true
-          description: Guest's email address
-          schema:
-            type: string
-            format: email
-      responses:
-        '201':
-          description: Room successfully booked
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BookedRoom'
-        '400':
-          description: Invalid request
-        '404':
-          description: Room not found
+          description: Отель или забронированные комнаты не найдены
+        '500':
+          description: Внутренняя ошибка сервера
 
 components:
   schemas:
+    Room:
+      type: object
+      properties:
+        ID:
+          type: string
+          description: ID комнаты
+        HotelID:
+          type: string
+          description: ID отеля
+        Name:
+          type: string
+          description: Название комнаты
+        Description:
+          type: string
+          description: Описание комнаты
+        Price:
+          type: integer
+          format: int32
+          description: Цена за комнату
+      required:
+        - ID
+        - HotelID
+        - Name
+        - Price
     BookedRoom:
       type: object
       properties:
         ID:
           type: string
+          description: ID забронированной комнаты
         HotelID:
           type: string
-        Name:
-          type: string
-        Description:
-          type: string
-        Price:
-          type: integer
+          description: ID отеля
         Entry:
           type: string
           format: date-time
+          description: Дата заезда
         Exit:
           type: string
           format: date-time
+          description: Дата выезда
         Email:
           type: string
           format: email
-          description: Email of the guest
+          description: Email пользователя, забронировавшего комнату
+      required:
+        - ID
+        - HotelID
+        - Entry
+        - Exit
+        - Email

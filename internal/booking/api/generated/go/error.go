@@ -3,7 +3,7 @@
 /*
  * Hotel Booking API
  *
- * API for fetching and booking rooms by hotel ID.
+ * API для управления бронированием отелей
  *
  * API version: 1.0.0
  */

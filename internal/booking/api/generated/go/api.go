@@ -3,7 +3,7 @@
 /*
  * Hotel Booking API
  *
- * API for fetching and booking rooms by hotel ID.
+ * API для управления бронированием отелей
  *
  * API version: 1.0.0
  */
@@ -13,7 +13,6 @@ package openapi
 import (
 	"context"
 	"net/http"
-	"time"
 )
 
 
@@ -22,9 +21,8 @@ import (
 // The DefaultAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a DefaultAPIServicer to perform the required actions, then write the service results to the http response.
 type DefaultAPIRouter interface { 
-	BookedRoomsHotelIdGet(http.ResponseWriter, *http.Request)
-	UnbookedRoomsHotelIdGet(http.ResponseWriter, *http.Request)
-	BookRoomRoomIdPost(http.ResponseWriter, *http.Request)
+	GetUnbookedRooms(http.ResponseWriter, *http.Request)
+	GetBookedRooms(http.ResponseWriter, *http.Request)
 }
 
 
@@ -33,7 +31,6 @@ type DefaultAPIRouter interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type DefaultAPIServicer interface { 
-	BookedRoomsHotelIdGet(context.Context, string) (ImplResponse, error)
-	UnbookedRoomsHotelIdGet(context.Context, string) (ImplResponse, error)
-	BookRoomRoomIdPost(context.Context, string, time.Time, time.Time, string) (ImplResponse, error)
+	GetUnbookedRooms(context.Context, string) (ImplResponse, error)
+	GetBookedRooms(context.Context, string) (ImplResponse, error)
 }

@@ -3,7 +3,7 @@
 /*
  * Hotel Booking API
  *
- * API for fetching and booking rooms by hotel ID.
+ * API для управления бронированием отелей
  *
  * API version: 1.0.0
  */
@@ -19,26 +19,37 @@ import (
 
 type BookedRoom struct {
 
-	ID string `json:"ID,omitempty"`
+	// ID забронированной комнаты
+	ID string `json:"ID"`
 
-	HotelID string `json:"HotelID,omitempty"`
+	// ID отеля
+	HotelID string `json:"HotelID"`
 
-	Name string `json:"Name,omitempty"`
+	// Дата заезда
+	Entry time.Time `json:"Entry"`
 
-	Description string `json:"Description,omitempty"`
+	// Дата выезда
+	Exit time.Time `json:"Exit"`
 
-	Price int32 `json:"Price,omitempty"`
-
-	Entry time.Time `json:"Entry,omitempty"`
-
-	Exit time.Time `json:"Exit,omitempty"`
-
-	// Email of the guest
-	Email string `json:"Email,omitempty"`
+	// Email пользователя, забронировавшего комнату
+	Email string `json:"Email"`
 }
 
 // AssertBookedRoomRequired checks if the required fields are not zero-ed
 func AssertBookedRoomRequired(obj BookedRoom) error {
+	elements := map[string]interface{}{
+		"ID": obj.ID,
+		"HotelID": obj.HotelID,
+		"Entry": obj.Entry,
+		"Exit": obj.Exit,
+		"Email": obj.Email,
+	}
+	for name, el := range elements {
+		if isZero := IsZeroValue(el); isZero {
+			return &RequiredError{Field: name}
+		}
+	}
+
 	return nil
 }
 
