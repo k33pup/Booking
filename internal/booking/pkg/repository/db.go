@@ -21,7 +21,7 @@ func NewBookedRoomRepository(dsn string) (*BookedRoomRepository, error) {
 
 	err = db.AutoMigrate(&domain.BookedRoom{})
 	if err != nil {
-		panic("Failed to run migrations: " + err.Error())
+		return nil, err
 	}
 
 	return &BookedRoomRepository{db: db}, nil
@@ -29,7 +29,7 @@ func NewBookedRoomRepository(dsn string) (*BookedRoomRepository, error) {
 
 func (r *BookedRoomRepository) BookRoom(ctx context.Context, room *domain.BookedRoom) error {
 	if err := r.db.Table("booked_rooms").Create(room).Error; err != nil {
-		return fmt.Errorf("adding file to database: %v", err)
+		return fmt.Errorf("adding room to database: %v", err)
 	}
 	return nil
 }
@@ -38,7 +38,7 @@ func (r *BookedRoomRepository) GetBookedRoomsList(ctx context.Context, hotelId s
 	var bookedRooms []domain.BookedRoom
 
 	if err := r.db.Table("files").Find(&bookedRooms).Error; err != nil {
-		return nil, fmt.Errorf("error retrieving rooms list from database: %v", err)
+		return nil, fmt.Errorf("retrieving rooms list from database: %v", err)
 	}
 
 	return bookedRooms, nil
@@ -51,7 +51,7 @@ func (r *BookedRoomRepository) IsRoomBooked(ctx context.Context, roomID string) 
 	if err := r.db.Table("booked_rooms").
 		Where("id = ? AND exit > ?", roomID, currentDate).
 		Count(&count).Error; err != nil {
-		return false, fmt.Errorf("error checking room booking status: %v", err)
+		return false, fmt.Errorf("checking room booking status: %v", err)
 	}
 
 	return count > 0, nil
