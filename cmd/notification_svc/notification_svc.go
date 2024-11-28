@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"os"
 
-	deliverysystem "github.com/k33pup/Booking.git/internal/notification/delivery_system"
 	kafkahandler "github.com/k33pup/Booking.git/internal/notification/kafka_handler"
+	deliverysystem "github.com/k33pup/Booking.git/pkg/deliverySystem"
 	logger "github.com/k33pup/Booking.git/pkg/logger"
 )
 
