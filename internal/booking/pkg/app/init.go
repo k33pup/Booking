@@ -9,9 +9,8 @@ import (
 )
 
 type BookingService struct {
-	server  *http.Server
-	useCase usecases.IBookedRoomUseCase
-	repo    *repository.BookedRoomRepository
+	server *http.Server
+	repo   *repository.BookedRoomRepository
 }
 
 func NewBookingService() (*BookingService, error) {
@@ -25,7 +24,7 @@ func NewBookingService() (*BookingService, error) {
 	}
 	useCase := usecases.NewBookedRoomUseCase(repo)
 	server := http.NewServer(useCase)
-	return &BookingService{server: server, useCase: useCase, repo: repo}, nil
+	return &BookingService{server: server, repo: repo}, nil
 }
 
 func (b *BookingService) Start(ctx context.Context) error {
