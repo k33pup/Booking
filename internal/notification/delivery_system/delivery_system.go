@@ -5,8 +5,6 @@ package deliverysystem
 import (
 	"encoding/json"
 	"fmt"
-
-	logger "github.com/k33pup/Booking.git/pkg/logger"
 )
 
 type Message struct {
@@ -24,7 +22,7 @@ func (*MockDeliverySystem) SendMessage(bytes []byte) error {
 	msg := Message{}
 	err := json.Unmarshal(bytes, &msg)
 	if err != nil {
-		logger.WriteLog(err.Error()) //TODO
+		fmt.Println(err.Error()) //TODO
 	}
 	fmt.Println(msg.Str)
 	return nil
