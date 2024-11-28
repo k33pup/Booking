@@ -12,7 +12,9 @@ package openapi
 
 import (
 	"context"
+	"github.com/k33pup/Booking.git/internal/booking/domain"
 	"github.com/k33pup/Booking.git/internal/booking/usecases"
+	"github.com/k33pup/Booking.git/pkg/models"
 	"net/http"
 	"errors"
 	"time"
@@ -32,51 +34,62 @@ func NewDefaultAPIService(useCase usecases.IBookedRoomRepository) *DefaultAPISer
 
 // GetUnbookedRooms - Получить список свободных комнат по ID отеля
 func (s *DefaultAPIService) GetUnbookedRooms(ctx context.Context, hotelId string) (ImplResponse, error) {
-	// TODO - update GetUnbookedRooms with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	// TODO: Uncomment the next line to return response Response(200, []Room{}) or use other options such as http.Ok ...
-	// return Response(200, []Room{}), nil
-
-	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	// return Response(404, nil),nil
-
-	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
-	// return Response(500, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("GetUnbookedRooms method not implemented")
+	var hotelsRooms []models.Room
+	// TODO обращение к сервису hotel забираем комнаты
+	var unbookedRooms []models.Room
+	for _, room := range hotelsRooms {
+		isBooked, err := s.useCase.IsRoomBooked(ctx, room.ID)
+		if err != nil {
+			return Response(http.StatusInternalServerError, err), nil
+		}
+		if !isBooked {
+			unbookedRooms = append(unbookedRooms, room)
+		}
+	}
+	return Response(http.StatusOK, hotelsRooms), nil
 }
 
 // GetBookedRooms - Получить список забронированных комнат по ID отеля
 func (s *DefaultAPIService) GetBookedRooms(ctx context.Context, hotelId string) (ImplResponse, error) {
-	// TODO - update GetBookedRooms with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	bookedRooms, err := s.useCase.GetBookedRoomsList(ctx, hotelId)
+	if err != nil {
+		return Response(http.StatusInternalServerError, nil), err
+	}
 
-	// TODO: Uncomment the next line to return response Response(200, []BookedRoom{}) or use other options such as http.Ok ...
-	// return Response(200, []BookedRoom{}), nil
+	if len(bookedRooms) == 0 {
+		return Response(http.StatusNotFound, nil), nil
+	}
 
-	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	// return Response(404, nil),nil
-
-	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
-	// return Response(500, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("GetBookedRooms method not implemented")
+	return Response(http.StatusOK, bookedRooms), nil
 }
 
 // BookRoomRoomIdPost - Book a room by ID
 func (s *DefaultAPIService) BookRoomRoomIdPost(ctx context.Context, roomId string, hotelId string, entry time.Time, exit time.Time, email string) (ImplResponse, error) {
-	// TODO - update BookRoomRoomIdPost with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Проверка существования отеля
+	if hotelId == "" {
+		return Response(http.StatusBadRequest, nil), errors.New("hotelId is required")
+	}
 
-	// TODO: Uncomment the next line to return response Response(201, BookedRoom{}) or use other options such as http.Ok ...
-	// return Response(201, BookedRoom{}), nil
+	// Проверка, забронирована ли комната
+	isBooked, err := s.useCase.IsRoomBooked(ctx, roomId)
+	if err != nil {
+		return Response(http.StatusInternalServerError, nil), err
+	}
+	if isBooked {
+		return Response(http.StatusConflict, nil), errors.New("room is already booked")
+	}
 
-	// TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	// return Response(400, nil),nil
+	newBooking := &domain.BookedRoom{
+		ID:      roomId,
+		HotelID: hotelId,
+		Entry:   entry,
+		Exit:    exit,
+		Email:   email,
+	}
 
-	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	// return Response(404, nil),nil
+	if err = s.useCase.BookRoom(ctx, newBooking); err != nil {
+		return Response(http.StatusInternalServerError, nil), err
+	}
 
-	return Response(http.StatusNotImplemented, nil), errors.New("BookRoomRoomIdPost method not implemented")
+	return Response(http.StatusCreated, newBooking), nil
 }
