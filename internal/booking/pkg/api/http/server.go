@@ -7,7 +7,9 @@ import (
 	openapi "github.com/k33pup/Booking.git/internal/booking/api/generated/go"
 	"github.com/k33pup/Booking.git/internal/booking/config"
 	"github.com/k33pup/Booking.git/internal/booking/usecases"
+	"log"
 	"net/http"
+	"sync"
 )
 
 type Server struct {
@@ -38,11 +40,22 @@ func (s *Server) Start(ctx context.Context) error {
 		return err
 	}
 
-	serverAddress := fmt.Sprintf("%s:%d", serverConfig.Host, serverConfig.Port)
+	serverAddress := fmt.Sprintf("%s:%s", serverConfig.Host, serverConfig.Port)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
 
 	go func() {
-		http.ListenAndServe(serverAddress, router)
+		defer wg.Done()
+		log.Printf("Server started on %s\n", serverAddress)
+		if err = http.ListenAndServe(serverAddress, router); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server: %v\n", err)
+		}
 	}()
+
+	wg.Wait()
+
+	// TODO graceful shut down
 
 	return nil
 }

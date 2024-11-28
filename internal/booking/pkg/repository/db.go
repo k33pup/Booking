@@ -37,7 +37,7 @@ func (r *BookedRoomRepository) BookRoom(ctx context.Context, room *domain.Booked
 func (r *BookedRoomRepository) GetBookedRoomsList(ctx context.Context, hotelId string) ([]domain.BookedRoom, error) {
 	var bookedRooms []domain.BookedRoom
 
-	if err := r.db.Table("files").Find(&bookedRooms).Error; err != nil {
+	if err := r.db.Table("booked_rooms").Find(&bookedRooms).Error; err != nil {
 		return nil, fmt.Errorf("retrieving rooms list from database: %v", err)
 	}
 
