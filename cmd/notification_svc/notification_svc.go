@@ -28,7 +28,7 @@ func Run() {
 		if string(m.Value) != "Success" { //TODO
 
 		}
-		str := "Hello, mr Penis payment completed" //TODO
+
 		bytes, err := json.Marshal(str)
 		if err != nil {
 			logger.LogError(err)
