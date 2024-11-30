@@ -16,12 +16,12 @@ var (
 	addr = flag.String("addr", "localhost:50051", "the address to connect to")
 )
 
-type mockDeliverySystemClient struct {
+type MockDeliverySystemClient struct {
 	client pb.SenderClient
 }
 
-func NewMockDeliverySystemClient() (*mockDeliverySystemClient, error) {
-	client := mockDeliverySystemClient{}
+func NewMockDeliverySystemClient() (*MockDeliverySystemClient, error) {
+	client := MockDeliverySystemClient{}
 	flag.Parse()
 	conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -31,11 +31,13 @@ func NewMockDeliverySystemClient() (*mockDeliverySystemClient, error) {
 	return &client, nil
 }
 
-func (ds *mockDeliverySystemClient) SendMail(str string) {
+func (ds *MockDeliverySystemClient) SendMail(str string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	_, err := ds.client.SendMail(ctx, &pb.SendMailRequest{Mail: str})
 	if err != nil {
 		log.Fatalf("could not send mail: %v", err)
+		return err
 	}
+	return nil
 }
