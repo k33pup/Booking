@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	kafkahandler "booking/notification_svc/internal/notification/kafka_handler"
+	kafkahandler "booking/notification_svc/internal/kafka_handler"
 	// deliverysystem "booking/notification_svc/pkg/deliverySystem"
 	logger "booking/notification_svc/pkg/logger"
 )
