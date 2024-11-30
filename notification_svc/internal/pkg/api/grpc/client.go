@@ -1,10 +1,12 @@
 package deliverySystemClient
 
 import (
+	"context"
 	"flag"
 	"log"
+	"time"
 
-	pb "booking/notification_svc/pkg/deliverySystem/api/grpc"
+	pb "booking/notification_svc/internal/pkg/api/generated"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -14,30 +16,26 @@ var (
 	addr = flag.String("addr", "localhost:50051", "the address to connect to")
 )
 
-type SendlerClient struct {
-	conn   *grpc.ClientConn
+type mockDeliverySystemClient struct {
 	client pb.SenderClient
 }
 
-func NewSenderClient() (*SendlerClient, error) {
-	client := SendlerClient{}
+func NewMockDeliverySystemClient() (*mockDeliverySystemClient, error) {
+	client := mockDeliverySystemClient{}
 	flag.Parse()
 	conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
-	client.conn = conn
 	client.client = pb.NewSenderClient(conn)
 	return &client, nil
 }
 
-func NewClient() *pb.SenderClient {
-	flag.Parse()
-	conn, err := grpc.NewClient(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func (ds *mockDeliverySystemClient) SendMail(str string) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	_, err := ds.client.SendMail(ctx, &pb.SendMailRequest{Mail: str})
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		log.Fatalf("could not send mail: %v", err)
 	}
-	defer conn.Close()
-	c := pb.NewSenderClient(conn)
-	return &c
 }
