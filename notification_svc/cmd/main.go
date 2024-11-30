@@ -2,12 +2,11 @@ package notificationsvc
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 
-	kafkahandler "github.com/k33pup/Booking.git/internal/notification/kafka_handler"
-	deliverysystem "github.com/k33pup/Booking.git/pkg/deliverySystem"
-	logger "github.com/k33pup/Booking.git/pkg/logger"
+	kafkahandler "booking/notification_svc/internal/notification/kafka_handler"
+	// deliverysystem "booking/notification_svc/pkg/deliverySystem"
+	logger "booking/notification_svc/pkg/logger"
 )
 
 func Run() {
@@ -15,7 +14,7 @@ func Run() {
 	topic := os.Getenv("notificationTopic")
 	groupID := os.Getenv("groupID")
 
-	ds := deliverysystem.NewMockDeliverySystem()
+	// ds := deliverysystem.NewMockDeliverySystem()
 	consumer := kafkahandler.GetKafkaReader(kafkaURL, topic, groupID)
 	logger := logger.Logger{} //TODO in pkg init
 	defer consumer.Close()
@@ -28,11 +27,5 @@ func Run() {
 		if string(m.Value) != "Success" { //TODO
 
 		}
-
-		bytes, err := json.Marshal(str)
-		if err != nil {
-			logger.LogError(err)
-		}
-		ds.SendMessage(bytes) //
 	}
 }
