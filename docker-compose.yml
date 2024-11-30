@@ -1,0 +1,42 @@
+services:
+  postgres_hotel_svc:
+    image: postgres:latest
+    container_name: postgres_hotel_service
+    env_file:
+      - ./hotel_svc/.env
+    ports:
+      - "5433:${POSTGRES_PORT}"
+    volumes:
+      - hotel_service_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - booking_network
+
+  hotel_svc:
+    container_name: hotel_service
+    build:
+      context: ./hotel_svc
+      dockerfile: Dockerfile
+    ports:
+      - "9091:${GRPC_SERVER_PORT}"
+      - "9092:${HTTP_SERVER_PORT}"
+    env_file:
+      - ./hotel_svc/.env
+    networks:
+      - booking_network
+    depends_on:
+      postgres_hotel_svc:
+        condition: service_healthy
+
+networks:
+  booking_network:
+    driver: bridge
+    name: booking_network
+
+volumes:
+  hotel_service_data:
+
