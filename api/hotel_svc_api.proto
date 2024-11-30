@@ -89,6 +89,8 @@ message Hotel {
   string city = 4;
   // Hotel address
   string address = 5;
+  // Hotel contacts
+  string contacts = 6;
 }
 
 message Room {
@@ -113,6 +115,8 @@ message CreateHotelRequest {
   string city = 3;
   // Hotel address
   string address = 4;
+  // Hotel contacts
+  string contacts = 5;
 }
 
 message CreateHotelResponse {

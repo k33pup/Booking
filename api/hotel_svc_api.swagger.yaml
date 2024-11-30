@@ -202,6 +202,9 @@ definitions:
       address:
         type: string
         title: Hotel address
+      contacts:
+        type: string
+        title: Hotel contacts
   v1CreateHotelResponse:
     type: object
     properties:
@@ -287,6 +290,9 @@ definitions:
       address:
         type: string
         title: Hotel address
+      contacts:
+        type: string
+        title: Hotel contacts
   v1Room:
     type: object
     properties:
