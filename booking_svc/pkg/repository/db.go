@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/k33pup/Booking.git/internal/booking/domain"
+	"github.com/k33pup/Booking.git/internal/domain"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"

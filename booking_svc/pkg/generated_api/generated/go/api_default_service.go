@@ -12,9 +12,8 @@ package openapi
 
 import (
 	"context"
-	"github.com/k33pup/Booking.git/internal/booking/domain"
-	"github.com/k33pup/Booking.git/internal/booking/usecases"
-	"github.com/k33pup/Booking.git/pkg/models"
+	"github.com/k33pup/Booking.git/internal/domain"
+	"github.com/k33pup/Booking.git/internal/usecases"
 	"net/http"
 	"errors"
 	"time"
@@ -34,11 +33,11 @@ func NewDefaultAPIService(useCase usecases.IBookedRoomRepository) *DefaultAPISer
 
 // GetUnbookedRooms - Получить список свободных комнат по ID отеля
 func (s *DefaultAPIService) GetUnbookedRooms(ctx context.Context, hotelId string) (ImplResponse, error) {
-	var hotelsRooms []models.Room
+	var hotelsRooms []domain.Room
 	// TODO обращение к сервису hotel забираем комнаты
-	var unbookedRooms []models.Room
+	var unbookedRooms []domain.Room
 	for _, room := range hotelsRooms {
-		isBooked, err := s.useCase.IsRoomBooked(ctx, room.ID)
+		isBooked, err := s.useCase.IsRoomBooked(ctx, room.Id)
 		if err != nil {
 			return Response(http.StatusInternalServerError, err), nil
 		}

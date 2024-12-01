@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/k33pup/Booking.git/internal/booking/config"
-	"github.com/k33pup/Booking.git/internal/booking/usecases"
-	openapi "github.com/k33pup/Booking.git/internal/booking_svc/generated_api/generated/go"
+	"github.com/k33pup/Booking.git/internal/usecases"
+	"github.com/k33pup/Booking.git/pkg/config"
+	openapi "github.com/k33pup/Booking.git/pkg/generated_api/generated/go"
 	"net/http"
 )
 
