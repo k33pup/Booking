@@ -1,0 +1,83 @@
+openapi: 3.0.0
+info:
+  description: API для обработки платежей по комнатам.
+  title: Payment Webhook API
+  version: 1.0.0
+servers:
+- description: Локальный сервер
+  url: http://localhost:8080
+paths:
+  /webhook/payment:
+    post:
+      description: Принимает данные о платеже для обновления статуса комнаты.
+      operationId: handlePayment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handlePayment_200_response'
+          description: Успешная обработка платежа
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handlePayment_400_response'
+          description: Неверный запрос
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/handlePayment_500_response'
+          description: Ошибка сервера
+      summary: Обработка данных о платеже
+components:
+  schemas:
+    Payment:
+      example:
+        room_id: "101"
+        price: 150.75
+      properties:
+        price:
+          description: Сумма платежа
+          example: 150.75
+          format: float
+          type: number
+        room_id:
+          description: Идентификатор комнаты
+          example: "101"
+          type: string
+      required:
+      - price
+      - room_id
+      type: object
+    handlePayment_200_response:
+      example:
+        message: Payment processed successfully
+      properties:
+        message:
+          example: Payment processed successfully
+          type: string
+      type: object
+    handlePayment_400_response:
+      example:
+        error: Invalid JSON payload
+      properties:
+        error:
+          example: Invalid JSON payload
+          type: string
+      type: object
+    handlePayment_500_response:
+      example:
+        error: Failed to process payment
+      properties:
+        error:
+          example: Failed to process payment
+          type: string
+      type: object

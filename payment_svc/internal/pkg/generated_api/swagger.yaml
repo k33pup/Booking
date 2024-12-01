@@ -1,0 +1,70 @@
+openapi: 3.0.0
+info:
+  title: Payment Webhook API
+  description: API для обработки платежей по комнатам.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер
+
+paths:
+  /webhook/payment:
+    post:
+      summary: Обработка данных о платеже
+      description: Принимает данные о платеже для обновления статуса комнаты.
+      operationId: handlePayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '200':
+          description: Успешная обработка платежа
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Payment processed successfully
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid JSON payload
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to process payment
+
+components:
+  schemas:
+    Payment:
+      type: object
+      properties:
+        price:
+          type: number
+          format: float
+          description: Сумма платежа
+          example: 150.75
+        room_id:
+          type: string
+          description: Идентификатор комнаты
+          example: "101"
+      required:
+        - price
+        - room_id
