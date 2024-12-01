@@ -2,10 +2,10 @@ package app
 
 import (
 	"context"
+	"github.com/k33pup/Booking.git/internal/pkg/api/http"
+	"github.com/k33pup/Booking.git/internal/pkg/config"
+	"github.com/k33pup/Booking.git/internal/pkg/repository"
 	"github.com/k33pup/Booking.git/internal/usecases"
-	"github.com/k33pup/Booking.git/pkg/api/http"
-	"github.com/k33pup/Booking.git/pkg/config"
-	"github.com/k33pup/Booking.git/pkg/repository"
 )
 
 type BookingService struct {

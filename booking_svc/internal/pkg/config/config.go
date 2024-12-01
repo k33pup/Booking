@@ -14,7 +14,7 @@ type DbConfig struct {
 }
 
 func LoadDbConfig() (DbConfig, error) {
-	viper.SetConfigFile("pkg/config/.env")
+	viper.SetConfigFile("internal/pkg/config/.env")
 	viper.AutomaticEnv()
 
 	err := viper.ReadInConfig()
@@ -54,7 +54,7 @@ type ServerConfig struct {
 }
 
 func LoadServerConfig() (ServerConfig, error) {
-	viper.SetConfigFile("pkg/config/.env")
+	viper.SetConfigFile("internal/pkg/config/.env")
 	viper.AutomaticEnv()
 
 	err := viper.ReadInConfig()

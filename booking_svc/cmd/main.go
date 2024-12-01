@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/k33pup/Booking.git/pkg/app"
+	"github.com/k33pup/Booking.git/internal/pkg/app"
 )
 
 func main() {
