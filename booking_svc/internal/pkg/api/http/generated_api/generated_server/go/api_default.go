@@ -11,14 +11,14 @@
 package openapi
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 )
 
-// DefaultAPIController binds http requests to an generated_api service and writes the service results to the http response
+// DefaultAPIController binds http requests to an api service and writes the service results to the http response
 type DefaultAPIController struct {
 	service DefaultAPIServicer
 	errorHandler ErrorHandler
@@ -34,7 +34,7 @@ func WithDefaultAPIErrorHandler(h ErrorHandler) DefaultAPIOption {
 	}
 }
 
-// NewDefaultAPIController creates a default generated_api controller
+// NewDefaultAPIController creates a default api controller
 func NewDefaultAPIController(s DefaultAPIServicer, opts ...DefaultAPIOption) *DefaultAPIController {
 	controller := &DefaultAPIController{
 		service:      s,
@@ -48,7 +48,7 @@ func NewDefaultAPIController(s DefaultAPIServicer, opts ...DefaultAPIOption) *De
 	return controller
 }
 
-// Routes returns all the generated_api routes for the DefaultAPIController
+// Routes returns all the api routes for the DefaultAPIController
 func (c *DefaultAPIController) Routes() Routes {
 	return Routes{
 		"GetUnbookedRooms": Route{
@@ -61,10 +61,10 @@ func (c *DefaultAPIController) Routes() Routes {
 			"/booked-rooms/{hotel_id}",
 			c.GetBookedRooms,
 		},
-		"BookRoomRoomIdPost": Route{
+		"BookRoomPost": Route{
 			strings.ToUpper("Post"),
-			"/book-room/{room_id}",
-			c.BookRoomRoomIdPost,
+			"/book-room/",
+			c.BookRoomPost,
 		},
 	}
 }
@@ -105,64 +105,24 @@ func (c *DefaultAPIController) GetBookedRooms(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// BookRoomRoomIdPost - Book a room by ID
-func (c *DefaultAPIController) BookRoomRoomIdPost(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	query, err := parseQuery(r.URL.RawQuery)
-	if err != nil {
+// BookRoomPost - Book a room by ID
+func (c *DefaultAPIController) BookRoomPost(w http.ResponseWriter, r *http.Request) {
+	bookedRoomParam := BookedRoom{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&bookedRoomParam); err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	roomIdParam := params["room_id"]
-	if roomIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"room_id"}, nil)
+	if err := AssertBookedRoomRequired(bookedRoomParam); err != nil {
+		c.errorHandler(w, r, err, nil)
 		return
 	}
-	var hotelIdParam string
-	if query.Has("hotelId") {
-		param := query.Get("hotelId")
-
-		hotelIdParam = param
-	} else {
-		c.errorHandler(w, r, &RequiredError{Field: "hotelId"}, nil)
+	if err := AssertBookedRoomConstraints(bookedRoomParam); err != nil {
+		c.errorHandler(w, r, err, nil)
 		return
 	}
-	var entryParam time.Time
-	if query.Has("Entry"){
-		param, err := parseTime(query.Get("Entry"))
-		if err != nil {
-			c.errorHandler(w, r, &ParsingError{Param: "Entry", Err: err}, nil)
-			return
-		}
-
-		entryParam = param
-	} else {
-		c.errorHandler(w, r, &RequiredError{"Entry"}, nil)
-		return
-	}
-	var exitParam time.Time
-	if query.Has("Exit"){
-		param, err := parseTime(query.Get("Exit"))
-		if err != nil {
-			c.errorHandler(w, r, &ParsingError{Param: "Exit", Err: err}, nil)
-			return
-		}
-
-		exitParam = param
-	} else {
-		c.errorHandler(w, r, &RequiredError{"Exit"}, nil)
-		return
-	}
-	var emailParam string
-	if query.Has("Email") {
-		param := query.Get("Email")
-
-		emailParam = param
-	} else {
-		c.errorHandler(w, r, &RequiredError{Field: "Email"}, nil)
-		return
-	}
-	result, err := c.service.BookRoomRoomIdPost(r.Context(), roomIdParam, hotelIdParam, entryParam, exitParam, emailParam)
+	result, err := c.service.BookRoomPost(r.Context(), bookedRoomParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

@@ -58,52 +58,14 @@ paths:
         "500":
           description: Внутренняя ошибка сервера
       summary: Получить список забронированных комнат по ID отеля
-  /book-room/{room_id}:
+  /book-room/:
     post:
-      parameters:
-      - description: ID of the room to book
-        explode: false
-        in: path
-        name: room_id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookedRoom'
         required: true
-        schema:
-          type: string
-        style: simple
-      - description: hotel id
-        explode: true
-        in: query
-        name: hotelId
-        required: true
-        schema:
-          type: string
-        style: form
-      - description: Check-in date
-        explode: true
-        in: query
-        name: Entry
-        required: true
-        schema:
-          format: date-time
-          type: string
-        style: form
-      - description: Check-out date
-        explode: true
-        in: query
-        name: Exit
-        required: true
-        schema:
-          format: date-time
-          type: string
-        style: form
-      - description: Guest's email address
-        explode: true
-        in: query
-        name: Email
-        required: true
-        schema:
-          format: email
-          type: string
-        style: form
       responses:
         "201":
           content:
@@ -153,6 +115,7 @@ components:
         Entry: 2000-01-23T04:56:07.000+00:00
         HotelID: HotelID
         Email: Email
+        IsPaid: true
         ID: ID
         Exit: 2000-01-23T04:56:07.000+00:00
       properties:
@@ -174,10 +137,14 @@ components:
           description: "Email пользователя, забронировавшего комнату"
           format: email
           type: string
+        IsPaid:
+          description: оплачена ли комната
+          type: boolean
       required:
       - Email
       - Entry
       - Exit
       - HotelID
       - ID
+      - IsPaid
       type: object

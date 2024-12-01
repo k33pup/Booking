@@ -24,17 +24,17 @@ import (
 	"strings"
 )
 
-// A Route defines the parameters for an generated_api endpoint
+// A Route defines the parameters for an api endpoint
 type Route struct {
 	Method	  string
 	Pattern	 string
 	HandlerFunc http.HandlerFunc
 }
 
-// Routes is a map of defined generated_api endpoints
+// Routes is a map of defined api endpoints
 type Routes map[string]Route
 
-// Router defines the required methods for retrieving generated_api routes
+// Router defines the required methods for retrieving api routes
 type Router interface {
 	Routes() Routes
 }
@@ -43,7 +43,7 @@ const errMsgRequiredMissing = "required parameter is missing"
 const errMsgMinValueConstraint = "provided parameter is not respecting minimum value constraint"
 const errMsgMaxValueConstraint = "provided parameter is not respecting maximum value constraint"
 
-// NewRouter creates a new router for any number of generated_api routers
+// NewRouter creates a new router for any number of api routers
 func NewRouter(routers ...Router) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, api := range routers {

@@ -33,6 +33,9 @@ type BookedRoom struct {
 
 	// Email пользователя, забронировавшего комнату
 	Email string `json:"Email"`
+
+	// оплачена ли комната
+	IsPaid bool `json:"IsPaid"`
 }
 
 // AssertBookedRoomRequired checks if the required fields are not zero-ed
@@ -43,6 +46,7 @@ func AssertBookedRoomRequired(obj BookedRoom) error {
 		"Entry": obj.Entry,
 		"Exit": obj.Exit,
 		"Email": obj.Email,
+		"IsPaid": obj.IsPaid,
 	}
 	for name, el := range elements {
 		if isZero := IsZeroValue(el); isZero {
