@@ -6,7 +6,8 @@ import (
 )
 
 type IBookedRoomRepository interface {
-	BookRoom(ctx context.Context, room *domain.BookedRoom) error
+	ReserveRoom(ctx context.Context, room *domain.BookedRoom) error
+	ApproveRoom(ctx context.Context, roomId string) error
 	GetBookedRoomsList(ctx context.Context, hotelId string) ([]domain.BookedRoom, error)
 	IsRoomBooked(ctx context.Context, roomID string) (bool, error)
 }

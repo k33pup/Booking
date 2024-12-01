@@ -6,7 +6,8 @@ import (
 )
 
 type IBookedRoomUseCase interface {
-	BookRoom(ctx context.Context, room *domain.BookedRoom) error
+	ReserveRoom(ctx context.Context, room *domain.BookedRoom) error
+	ApproveRoom(ctx context.Context, roomId string) error
 	GetBookedRoomsList(ctx context.Context, hotelId string) ([]domain.BookedRoom, error)
 	IsRoomBooked(ctx context.Context, roomID string) (bool, error)
 }
@@ -19,8 +20,12 @@ func NewBookedRoomUseCase(repo IBookedRoomRepository) *BookedRoomUseCase {
 	return &BookedRoomUseCase{repo: repo}
 }
 
-func (br *BookedRoomUseCase) BookRoom(ctx context.Context, room *domain.BookedRoom) error {
-	return br.repo.BookRoom(ctx, room)
+func (br *BookedRoomUseCase) ReserveRoom(ctx context.Context, room *domain.BookedRoom) error {
+	return br.repo.ReserveRoom(ctx, room)
+}
+
+func (br *BookedRoomUseCase) ApproveRoom(ctx context.Context, roomId string) error {
+	return br.repo.ApproveRoom(ctx, roomId)
 }
 
 func (br *BookedRoomUseCase) GetBookedRoomsList(ctx context.Context, hotelId string) ([]domain.BookedRoom, error) {

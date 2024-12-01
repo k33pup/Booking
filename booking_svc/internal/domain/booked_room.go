@@ -8,4 +8,5 @@ type BookedRoom struct {
 	Entry   time.Time
 	Exit    time.Time
 	Email   string
+	IsPaid  bool
 }

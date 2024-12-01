@@ -84,11 +84,14 @@ func (s *DefaultAPIService) BookRoomRoomIdPost(ctx context.Context, roomId strin
 		Entry:   entry,
 		Exit:    exit,
 		Email:   email,
+		IsPaid:  false,
 	}
 
-	if err = s.useCase.BookRoom(ctx, newBooking); err != nil {
+	if err = s.useCase.ReserveRoom(ctx, newBooking); err != nil {
 		return Response(http.StatusInternalServerError, nil), err
 	}
+
+	// TODO ask payment to approve
 
 	return Response(http.StatusCreated, newBooking), nil
 }

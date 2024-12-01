@@ -27,10 +27,30 @@ func NewBookedRoomRepository(dsn string) (*BookedRoomRepository, error) {
 	return &BookedRoomRepository{db: db}, nil
 }
 
-func (r *BookedRoomRepository) BookRoom(ctx context.Context, room *domain.BookedRoom) error {
+func (r *BookedRoomRepository) ReserveRoom(ctx context.Context, room *domain.BookedRoom) error {
 	if err := r.db.Table("booked_rooms").Create(room).Error; err != nil {
 		return fmt.Errorf("adding room to database: %v", err)
 	}
+	return nil
+}
+
+func (r *BookedRoomRepository) ApproveRoom(ctx context.Context, roomId string) error {
+	// Выполняем обновление поля IsPaid
+	result := r.db.WithContext(ctx).
+		Table("booked_rooms").
+		Where("id = ?", roomId).
+		Update("is_paid", true)
+
+	// Проверяем на ошибки
+	if result.Error != nil {
+		return fmt.Errorf("updating room payment status: %v", result.Error)
+	}
+
+	// Проверяем, была ли обновлена хотя бы одна строка
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("no room found with id: %s", roomId)
+	}
+
 	return nil
 }
 
