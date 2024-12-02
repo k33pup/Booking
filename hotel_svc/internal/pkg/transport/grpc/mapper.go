@@ -2,13 +2,13 @@ package grpc
 
 import (
 	"booking/hotel_svc/internal/domain"
-	apiv1pb "booking/hotel_svc/internal/pkg/api/generated"
+	apiv1pb "booking/hotel_svc/internal/pkg/transport/grpc/generated"
 	"booking/hotel_svc/pkg/models"
 )
 
 func ToModelsHotel(hotel *domain.Hotel) *models.Hotel {
 	return &models.Hotel{
-		ID:          hotel.ID,
+		ID:          hotel.Id,
 		Name:        hotel.Name,
 		Description: hotel.Description,
 		City:        hotel.City,
@@ -19,7 +19,7 @@ func ToModelsHotel(hotel *domain.Hotel) *models.Hotel {
 
 func ToApiv1pbHotel(hotel *domain.Hotel) *apiv1pb.Hotel {
 	return &apiv1pb.Hotel{
-		HotelId:     hotel.ID,
+		HotelId:     hotel.Id,
 		Name:        hotel.Name,
 		Description: hotel.Description,
 		City:        hotel.City,

@@ -1,18 +1,34 @@
 services:
-  postgres_hotel_svc:
+  postgres:
     image: postgres:latest
-    container_name: postgres_hotel_service
+    container_name: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     env_file:
       - ./hotel_svc/.env
-    ports:
-      - "5433:${POSTGRES_PORT}"
-    volumes:
-      - hotel_service_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - booking_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
     networks:
       - booking_network
 
@@ -22,14 +38,14 @@ services:
       context: ./hotel_svc
       dockerfile: Dockerfile
     ports:
-      - "9091:${GRPC_SERVER_PORT}"
-      - "9092:${HTTP_SERVER_PORT}"
+      - "9091:5091"
+      - "9092:5092"
     env_file:
       - ./hotel_svc/.env
     networks:
       - booking_network
     depends_on:
-      postgres_hotel_svc:
+      postgres:
         condition: service_healthy
 
 networks:
@@ -38,5 +54,5 @@ networks:
     name: booking_network
 
 volumes:
-  hotel_service_data:
-
+  postgres-data:
+  pgadmin-data:

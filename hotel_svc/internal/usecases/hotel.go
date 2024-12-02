@@ -3,6 +3,7 @@ package usecases
 import (
 	"booking/hotel_svc/internal/domain"
 	"context"
+	"errors"
 )
 
 type IHotelUseCase interface {
@@ -23,6 +24,10 @@ type HotelUseCase struct {
 func NewHotelUseCase(repo IHotelRepository) *HotelUseCase {
 	return &HotelUseCase{repo: repo}
 }
+
+var ErrHotelNotFound = errors.New("hotel not found")
+var ErrRoomNotFound = errors.New("room not found")
+var ErrRoomsNotFound = errors.New("rooms not found")
 
 func (h *HotelUseCase) GetHotelsList(ctx context.Context) ([]*domain.Hotel, error) {
 	return h.repo.GetHotelsList(ctx)

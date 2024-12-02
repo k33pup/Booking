@@ -15,9 +15,9 @@ const (
 	ParamHTTPAddress     = "HTTP_ADDRESS"
 	ParamNameHTTPTimeout = "HTTP_TIMEOUT"
 	ParamLogPath         = "LOG_PATH"
-
-	ParamGRCPPort = "GRPC_SERVER_PORT"
-	ParamHTTPPort = "HTTP_SERVER_PORT"
+	ParamGRCPPort        = "GRPC_SERVER_PORT"
+	ParamHTTPPort        = "HTTP_SERVER_PORT"
+	ParamDSNString       = "DSB_STRING"
 )
 
 var (
@@ -36,6 +36,14 @@ func NewConfig() *Config {
 			ParamHTTPAddress:     ":" + os.Getenv(ParamHTTPPort),
 			ParamNameHTTPTimeout: "10s",
 			ParamLogPath:         "/tmp/log.txt",
+			ParamDSNString: fmt.Sprintf(
+				"host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+				os.Getenv("POSTGRES_HOST"),
+				os.Getenv("POSTGRES_PORT"),
+				os.Getenv("POSTGRES_USER"),
+				os.Getenv("POSTGRES_DB"),
+				os.Getenv("POSTGRES_PASSWORD"),
+			),
 		},
 	}
 }
@@ -66,4 +74,8 @@ func (c *Config) GetTimeout() string {
 
 func (c *Config) GetLogPath() string {
 	return c.params[ParamLogPath]
+}
+
+func (c *Config) GetDSN() string {
+	return c.params[ParamDSNString]
 }

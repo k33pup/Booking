@@ -1,10 +1,10 @@
 package app
 
 import (
-	"booking/hotel_svc/internal/pkg/api/generated"
-	impl "booking/hotel_svc/internal/pkg/api/grpc"
 	"booking/hotel_svc/internal/pkg/config"
-	"booking/hotel_svc/internal/pkg/repository"
+	"booking/hotel_svc/internal/pkg/repository/postgres"
+	impl "booking/hotel_svc/internal/pkg/transport/grpc"
+	apiv1pb "booking/hotel_svc/internal/pkg/transport/grpc/generated"
 	"booking/hotel_svc/internal/usecases"
 	"context"
 	"errors"
@@ -43,8 +43,8 @@ func NewHotelService(cfg *config.Config) *HotelService {
 
 func (h *HotelService) Init(ctx context.Context) error {
 	// Initialization of grpc, postgres, kafka and other dependencies
-
-	repo := repository.NewHotelRepository(nil)
+	dsn := h.cfg.GetDSN()
+	repo, err := postgres.NewHotelRepository(dsn)
 	useCase := usecases.NewHotelUseCase(repo)
 	server := impl.NewServer(useCase)
 
@@ -59,13 +59,13 @@ func (h *HotelService) Init(ctx context.Context) error {
 	}
 
 	h.grpcServer = grpc.NewServer()
-	generated.RegisterHotelServiceServer(h.grpcServer, server)
+	apiv1pb.RegisterHotelServiceServer(h.grpcServer, server)
 
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	err = generated.RegisterHotelServiceHandlerFromEndpoint(ctx, mux, h.cfg.GetGRCPAddress(), opts)
+	err = apiv1pb.RegisterHotelServiceHandlerFromEndpoint(ctx, mux, h.cfg.GetGRCPAddress(), opts)
 	if err != nil {
 		h.log.InfoContext(ctx, "failed to register gRPC-Gateway: %w", err)
 		return fmt.Errorf("failed to register gRPC-Gateway: %w", err)
