@@ -1,4 +1,4 @@
-package notificationsvc
+package main
 
 import (
 	"booking/notification_svc/internal/pkg/app"
