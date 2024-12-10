@@ -6,7 +6,6 @@ import (
 	deliverysystem "booking/notification_svc/internal/usecases"
 	kafkahandler "booking/notification_svc/pkg/kafka"
 	"context"
-	"fmt"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -27,15 +26,15 @@ func NewNotificationService() (*NotificationService, error) {
 }
 
 func (nsvc *NotificationService) Start(ctx context.Context) error {
-	m, err := nsvc.kafkaReader.ReadMessage(context.Background())
-	if err != nil {
-		fmt.Println("Error in reading msg")
-		return err
+	for {
+		if m, err := nsvc.kafkaReader.ReadMessage(context.Background()); err != nil {
+			return err
+		} else {
+			if string(m.Value) == "Success" {
+				nsvc.deliverySystemClient.SendMail(string(m.Value))
+			}
+		}
 	}
-	if string(m.Value) == "Success" {
-		nsvc.deliverySystemClient.SendMail(string(m.Value))
-	}
-	return nil
 }
 
 func (nsvc *NotificationService) Close() {
