@@ -1,7 +1,7 @@
 package domain
 
 type Hotel struct {
-	ID          string
+	Id          string
 	Name        string
 	Description string
 	City        string
