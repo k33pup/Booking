@@ -67,3 +67,14 @@ func LoadServerConfig() (ServerConfig, error) {
 		Host: viper.GetString("SERVER_HOST"),
 	}, nil
 }
+
+func LoadLogFilePath() (string, error) {
+	viper.SetConfigFile("internal/pkg/config/.env")
+	viper.AutomaticEnv()
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		return "", err
+	}
+	return viper.GetString("LOG_FILE_PATH"), nil
+}

@@ -14,8 +14,11 @@ import (
 	"context"
 	"errors"
 	"github.com/k33pup/Booking.git/internal/domain"
+	"github.com/k33pup/Booking.git/internal/pkg/config"
 	"github.com/k33pup/Booking.git/internal/usecases"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
 // DefaultAPIService is a service that implements the logic for the DefaultAPIServicer
@@ -23,25 +26,42 @@ import (
 // Include any external packages or services that will be required by this service.
 type DefaultAPIService struct {
 	useCase usecases.IBookedRoomRepository
+	log    *slog.Logger
 }
 
 // NewDefaultAPIService creates a default generated_api service
 func NewDefaultAPIService(useCase usecases.IBookedRoomRepository) *DefaultAPIService {
-	return &DefaultAPIService{useCase}
+	logFilePath, _ := config.LoadLogFilePath()
+	logFile, _ := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	handler := slog.NewTextHandler(logFile, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})
+	log := slog.New(handler)
+	return &DefaultAPIService{useCase, log}
 }
 
 // ApprovePaymentWebhook - Webhook для подтверждения платежа
 func (s *DefaultAPIService) ApprovePaymentWebhook(ctx context.Context, approvePaymentWebhookRequest ApprovePaymentWebhookRequest) (ImplResponse, error) {
-	if (!approvePaymentWebhookRequest.Approve) {
+	if !approvePaymentWebhookRequest.Approve {
+		// Логируем отмену платежа
+		s.log.Info("Payment not approved, unreserving room", "room_id", approvePaymentWebhookRequest.RoomId)
 		// TODO send that payment is canceled
-		s.useCase.UnReserveRoom(ctx, approvePaymentWebhookRequest.RoomId)
+		err := s.useCase.UnReserveRoom(ctx, approvePaymentWebhookRequest.RoomId)
+		if err != nil {
+			s.log.Error("Failed to unreserve room", "room_id", approvePaymentWebhookRequest.RoomId, "error", err)
+			return Response(http.StatusInternalServerError, nil), err
+		}
 		return Response(http.StatusOK, ApprovePaymentWebhook200Response{
-			Message: "Payment is not approver, unreserve room",
+			Message: "Payment is not approved, room unreserved",
 		}), nil
 	}
 
+	// Логируем успешное подтверждение
+	s.log.Info("Payment approved, reserving room", "room_id", approvePaymentWebhookRequest.RoomId)
+
 	err := s.useCase.ApproveRoom(ctx, approvePaymentWebhookRequest.RoomId)
 	if err != nil {
+		s.log.Error("Failed to approve room reservation", "room_id", approvePaymentWebhookRequest.RoomId, "error", err)
 		return Response(http.StatusInternalServerError, nil), err
 	}
 
@@ -52,48 +72,63 @@ func (s *DefaultAPIService) ApprovePaymentWebhook(ctx context.Context, approvePa
 
 // GetUnbookedRooms - Получить список свободных комнат по ID отеля
 func (s *DefaultAPIService) GetUnbookedRooms(ctx context.Context, hotelId string) (ImplResponse, error) {
+	s.log.Info("Fetching unbooked rooms", "hotel_id", hotelId)
+
 	var hotelsRooms []domain.Room
 	// TODO обращение к сервису hotel забираем комнаты
 	var unbookedRooms []domain.Room
 	for _, room := range hotelsRooms {
 		isBooked, err := s.useCase.IsRoomBooked(ctx, room.Id)
 		if err != nil {
+			s.log.Error("Failed to check room booking status", "room_id", room.Id, "error", err)
 			return Response(http.StatusInternalServerError, err), nil
 		}
 		if !isBooked {
 			unbookedRooms = append(unbookedRooms, room)
 		}
 	}
-	return Response(http.StatusOK, hotelsRooms), nil
+
+	s.log.Info("Fetched unbooked rooms successfully", "hotel_id", hotelId, "unbooked_count", len(unbookedRooms))
+	return Response(http.StatusOK, unbookedRooms), nil
 }
 
 // GetBookedRooms - Получить список забронированных комнат по ID отеля
 func (s *DefaultAPIService) GetBookedRooms(ctx context.Context, hotelId string) (ImplResponse, error) {
+	s.log.Info("Fetching booked rooms", "hotel_id", hotelId)
+
 	bookedRooms, err := s.useCase.GetBookedRoomsList(ctx, hotelId)
 	if err != nil {
+		s.log.Error("Failed to fetch booked rooms", "hotel_id", hotelId, "error", err)
 		return Response(http.StatusInternalServerError, nil), err
 	}
 
 	if len(bookedRooms) == 0 {
+		s.log.Warn("No booked rooms found", "hotel_id", hotelId)
 		return Response(http.StatusNotFound, nil), nil
 	}
 
+	s.log.Info("Fetched booked rooms successfully", "hotel_id", hotelId, "booked_count", len(bookedRooms))
 	return Response(http.StatusOK, bookedRooms), nil
 }
 
 // BookRoomPost - Book a room by ID
 func (s *DefaultAPIService) BookRoomPost(ctx context.Context, bookedRoom BookedRoom) (ImplResponse, error) {
+	s.log.Info("Attempting to book room", "hotel_id", bookedRoom.HotelID, "room_id", bookedRoom.ID)
+
 	// Проверка существования отеля
 	if bookedRoom.HotelID == "" {
+		s.log.Error("Hotel ID is missing")
 		return Response(http.StatusBadRequest, nil), errors.New("hotelId is required")
 	}
 
 	// Проверка, забронирована ли комната
 	isBooked, err := s.useCase.IsRoomBooked(ctx, bookedRoom.ID)
 	if err != nil {
+		s.log.Error("Failed to check room booking status", "room_id", bookedRoom.ID, "error", err)
 		return Response(http.StatusInternalServerError, nil), err
 	}
 	if isBooked {
+		s.log.Warn("Room is already booked", "room_id", bookedRoom.ID)
 		return Response(http.StatusConflict, nil), errors.New("room is already booked")
 	}
 
@@ -101,11 +136,14 @@ func (s *DefaultAPIService) BookRoomPost(ctx context.Context, bookedRoom BookedR
 
 	newBookedRoom := ToDomainBookedRoom(bookedRoom)
 
-	if err = s.useCase.ReserveRoom(ctx, newBookedRoom); err != nil {
+	err = s.useCase.ReserveRoom(ctx, newBookedRoom)
+	if err != nil {
+		s.log.Error("Failed to reserve room", "room_id", bookedRoom.ID, "error", err)
 		return Response(http.StatusInternalServerError, nil), err
 	}
 
 	// TODO ask payment to approve
-
+	s.log.Info("Room reserved successfully", "room_id", bookedRoom.ID)
 	return Response(http.StatusCreated, newBookedRoom), nil
 }
+
