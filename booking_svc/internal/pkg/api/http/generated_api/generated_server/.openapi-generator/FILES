@@ -10,6 +10,8 @@ go/error.go
 go/helpers.go
 go/impl.go
 go/logger.go
+go/model_approve_payment_webhook_200_response.go
+go/model_approve_payment_webhook_request.go
 go/model_booked_room.go
 go/model_room.go
 go/routers.go

@@ -51,6 +51,11 @@ func NewDefaultAPIController(s DefaultAPIServicer, opts ...DefaultAPIOption) *De
 // Routes returns all the api routes for the DefaultAPIController
 func (c *DefaultAPIController) Routes() Routes {
 	return Routes{
+		"ApprovePaymentWebhook": Route{
+			strings.ToUpper("Post"),
+			"/webhook/approve-payment",
+			c.ApprovePaymentWebhook,
+		},
 		"GetUnbookedRooms": Route{
 			strings.ToUpper("Get"),
 			"/unbooked-rooms/{hotel_id}",
@@ -67,6 +72,33 @@ func (c *DefaultAPIController) Routes() Routes {
 			c.BookRoomPost,
 		},
 	}
+}
+
+// ApprovePaymentWebhook - Webhook для подтверждения платежа
+func (c *DefaultAPIController) ApprovePaymentWebhook(w http.ResponseWriter, r *http.Request) {
+	approvePaymentWebhookRequestParam := ApprovePaymentWebhookRequest{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&approvePaymentWebhookRequestParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertApprovePaymentWebhookRequestRequired(approvePaymentWebhookRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertApprovePaymentWebhookRequestConstraints(approvePaymentWebhookRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.ApprovePaymentWebhook(r.Context(), approvePaymentWebhookRequestParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
 // GetUnbookedRooms - Получить список свободных комнат по ID отеля

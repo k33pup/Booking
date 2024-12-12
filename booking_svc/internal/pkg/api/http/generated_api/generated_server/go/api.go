@@ -21,6 +21,7 @@ import (
 // The DefaultAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a DefaultAPIServicer to perform the required actions, then write the service results to the http response.
 type DefaultAPIRouter interface { 
+	ApprovePaymentWebhook(http.ResponseWriter, *http.Request)
 	GetUnbookedRooms(http.ResponseWriter, *http.Request)
 	GetBookedRooms(http.ResponseWriter, *http.Request)
 	BookRoomPost(http.ResponseWriter, *http.Request)
@@ -32,6 +33,7 @@ type DefaultAPIRouter interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type DefaultAPIServicer interface { 
+	ApprovePaymentWebhook(context.Context, ApprovePaymentWebhookRequest) (ImplResponse, error)
 	GetUnbookedRooms(context.Context, string) (ImplResponse, error)
 	GetBookedRooms(context.Context, string) (ImplResponse, error)
 	BookRoomPost(context.Context, BookedRoom) (ImplResponse, error)

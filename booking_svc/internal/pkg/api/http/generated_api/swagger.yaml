@@ -5,6 +5,44 @@ info:
   description: API для управления бронированием отелей
 
 paths:
+  /webhook/approve-payment:
+    post:
+      summary: Webhook для подтверждения платежа
+      operationId: approvePaymentWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                room_id:
+                  type: string
+                  description: ID комнаты
+                approve:
+                  type: boolean
+                  description: Подтверждение платежа
+              required:
+                - room_id
+                - approve
+      responses:
+        '200':
+          description: Платеж успешно подтвержден
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Payment approved successfully"
+        '400':
+          description: Неверный запрос
+        '404':
+          description: Комната не найдена
+        '500':
+          description: Внутренняя ошибка сервера
+
   /unbooked-rooms/{hotel_id}:
     get:
       summary: Получить список свободных комнат по ID отеля

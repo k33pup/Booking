@@ -6,6 +6,29 @@ info:
 servers:
 - url: /
 paths:
+  /webhook/approve-payment:
+    post:
+      operationId: approvePaymentWebhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/approvePaymentWebhook_request'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/approvePaymentWebhook_200_response'
+          description: Платеж успешно подтвержден
+        "400":
+          description: Неверный запрос
+        "404":
+          description: Комната не найдена
+        "500":
+          description: Внутренняя ошибка сервера
+      summary: Webhook для подтверждения платежа
   /unbooked-rooms/{hotel_id}:
     get:
       operationId: getUnbookedRooms
@@ -147,4 +170,24 @@ components:
       - HotelID
       - ID
       - IsPaid
+      type: object
+    approvePaymentWebhook_request:
+      properties:
+        room_id:
+          description: ID комнаты
+          type: string
+        approve:
+          description: Подтверждение платежа
+          type: boolean
+      required:
+      - approve
+      - room_id
+      type: object
+    approvePaymentWebhook_200_response:
+      example:
+        message: Payment approved successfully
+      properties:
+        message:
+          example: Payment approved successfully
+          type: string
       type: object

@@ -10,4 +10,5 @@ type IBookedRoomRepository interface {
 	ApproveRoom(ctx context.Context, roomId string) error
 	GetBookedRoomsList(ctx context.Context, hotelId string) ([]domain.BookedRoom, error)
 	IsRoomBooked(ctx context.Context, roomID string) (bool, error)
+	UnReserveRoom(ctx context.Context, roomId string) error
 }

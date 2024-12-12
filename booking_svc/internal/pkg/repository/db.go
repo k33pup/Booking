@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/k33pup/Booking.git/internal/domain"
 	"gorm.io/driver/postgres"
@@ -31,6 +32,26 @@ func (r *BookedRoomRepository) ReserveRoom(ctx context.Context, room *domain.Boo
 	if err := r.db.Table("booked_rooms").Create(room).Error; err != nil {
 		return fmt.Errorf("adding room to database: %v", err)
 	}
+	return nil
+}
+
+func (r *BookedRoomRepository) UnReserveRoom(ctx context.Context, roomId string) error {
+	// Check if the room exists and is not paid
+	var room domain.BookedRoom
+	if err := r.db.Table("booked_rooms").
+		Where("id = ? AND is_paid = ?", roomId, false).
+		First(&room).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return fmt.Errorf("room not found or already paid")
+		}
+		return fmt.Errorf("error querying room: %v", err)
+	}
+
+	// Delete the room from the database
+	if err := r.db.Table("booked_rooms").Delete(&room).Error; err != nil {
+		return fmt.Errorf("error deleting room: %v", err)
+	}
+
 	return nil
 }
 
