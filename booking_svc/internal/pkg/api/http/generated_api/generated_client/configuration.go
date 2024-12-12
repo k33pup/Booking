@@ -70,7 +70,7 @@ type ServerConfiguration struct {
 // ServerConfigurations stores multiple ServerConfiguration items
 type ServerConfigurations []ServerConfiguration
 
-// Configuration stores the configuration of the API client
+// Configuration stores the configuration of the API booking_client
 type Configuration struct {
 	Host             string            `json:"host,omitempty"`
 	Scheme           string            `json:"scheme,omitempty"`

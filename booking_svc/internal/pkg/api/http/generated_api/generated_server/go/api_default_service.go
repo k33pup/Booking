@@ -12,10 +12,10 @@ package openapi
 
 import (
 	"context"
+	"errors"
 	"github.com/k33pup/Booking.git/internal/domain"
 	"github.com/k33pup/Booking.git/internal/usecases"
 	"net/http"
-	"errors"
 )
 
 // DefaultAPIService is a service that implements the logic for the DefaultAPIServicer
@@ -97,14 +97,9 @@ func (s *DefaultAPIService) BookRoomPost(ctx context.Context, bookedRoom BookedR
 		return Response(http.StatusConflict, nil), errors.New("room is already booked")
 	}
 
-	newBookedRoom := &domain.BookedRoom{
-		HotelID: bookedRoom.HotelID,
-		ID:      bookedRoom.ID,
-		Entry:   bookedRoom.Entry,
-		Exit: 	 bookedRoom.Exit,
-		Email:   bookedRoom.Email,
-		IsPaid:  false,
-	}
+	bookedRoom.IsPaid = false
+
+	newBookedRoom := ToDomainBookedRoom(bookedRoom)
 
 	if err = s.useCase.ReserveRoom(ctx, newBookedRoom); err != nil {
 		return Response(http.StatusInternalServerError, nil), err

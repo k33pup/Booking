@@ -56,7 +56,7 @@ type service struct {
 	client *APIClient
 }
 
-// NewAPIClient creates a new API client. Requires a userAgent string describing your application.
+// NewAPIClient creates a new API booking_client. Requires a userAgent string describing your application.
 // optionally a custom http.Client to allow for advanced features such as caching.
 func NewAPIClient(cfg *Configuration) *APIClient {
 	if cfg.HTTPClient == nil {
