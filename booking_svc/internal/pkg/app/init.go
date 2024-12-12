@@ -28,7 +28,7 @@ func NewBookingService() (*BookingService, error) {
 }
 
 func (b *BookingService) Start(ctx context.Context) error {
-	err := b.server.Start(ctx)
+	err := b.server.Start()
 	if err != nil {
 		return err
 	}
