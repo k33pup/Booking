@@ -46,7 +46,7 @@ func (h *HotelService) Init(ctx context.Context) error {
 	dsn := h.cfg.GetDSN()
 	repo, err := postgres.NewHotelRepository(dsn)
 	useCase := usecases.NewHotelUseCase(repo)
-	server := impl.NewServer(useCase)
+	server := impl.NewServer(useCase, h.log)
 
 	h.waitGroup = &sync.WaitGroup{}
 

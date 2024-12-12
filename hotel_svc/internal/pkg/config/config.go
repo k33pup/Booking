@@ -15,8 +15,8 @@ const (
 	ParamHTTPAddress     = "HTTP_ADDRESS"
 	ParamNameHTTPTimeout = "HTTP_TIMEOUT"
 	ParamLogPath         = "LOG_PATH"
-	ParamGRCPPort        = "GRPC_SERVER_PORT"
-	ParamHTTPPort        = "HTTP_SERVER_PORT"
+	ParamGRCPPort        = "HOTEL_GRPC_SERVER_PORT"
+	ParamHTTPPort        = "HOTEL_HTTP_SERVER_PORT"
 	ParamDSNString       = "DSB_STRING"
 )
 

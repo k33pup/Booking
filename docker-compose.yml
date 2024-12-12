@@ -9,7 +9,7 @@ services:
     env_file:
       - ./hotel_svc/.env
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -37,11 +37,12 @@ services:
     build:
       context: ./hotel_svc
       dockerfile: Dockerfile
-    ports:
-      - "9091:5091"
-      - "9092:5092"
     env_file:
       - ./hotel_svc/.env
+      - .env
+    ports:
+      - "9091:${HOTEL_GRPC_SERVER_PORT}"
+      - "9092:${HOTEL_HTTP_SERVER_PORT}"
     networks:
       - booking_network
     depends_on:

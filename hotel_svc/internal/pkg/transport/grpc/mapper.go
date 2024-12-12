@@ -8,7 +8,7 @@ import (
 
 func ToModelsHotel(hotel *domain.Hotel) *models.Hotel {
 	return &models.Hotel{
-		ID:          hotel.Id,
+		Id:          hotel.Id,
 		Name:        hotel.Name,
 		Description: hotel.Description,
 		City:        hotel.City,
