@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"github.com/k33pup/Booking.git/internal/pkg/api/http"
+	my_http "github.com/k33pup/Booking.git/internal/pkg/api/http"
 	"github.com/k33pup/Booking.git/internal/pkg/config"
 	"github.com/k33pup/Booking.git/internal/pkg/repository"
 	"github.com/k33pup/Booking.git/internal/usecases"
@@ -11,7 +11,7 @@ import (
 )
 
 type BookingService struct {
-	server *http.Server
+	server *my_http.Server
 	repo   *repository.BookedRoomRepository
 	log    *slog.Logger
 }
@@ -38,13 +38,22 @@ func NewBookingService() (*BookingService, error) {
 		return nil, err
 	}
 	useCase := usecases.NewBookedRoomUseCase(repo)
-	server := http.NewServer(useCase)
+	server := my_http.NewServer(useCase)
 	return &BookingService{server: server, repo: repo, log: log}, nil
 }
 
 func (b *BookingService) Start(ctx context.Context) error {
 	b.log.Info("Booking service started")
 	err := b.server.Start()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *BookingService) Stop(ctx context.Context) error {
+	b.log.Info("Booking service stopped")
+	err := b.server.Stop(ctx)
 	if err != nil {
 		return err
 	}
