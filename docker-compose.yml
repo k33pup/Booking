@@ -9,13 +9,14 @@ services:
     - "2181:2181"
     environment:
       ALLOW_ANONYMOUS_LOGIN: yes
+      ALLOW_PLAINTEXT_LISTENER: yes
   
   kafka:
     hostname: kafka
     image: bitnami/kafka:2.7.0
     restart: always
     env_file:
-    - kafka/kafka-variables.env
+    - notification_svc/pkg/kafka/kafka-variables.env
     depends_on:
     - zookeeper
     expose:
@@ -26,14 +27,16 @@ services:
     - '9092:9092'
     - '8082:8082'
     - '8083:8083'
-
-  hotel_svc:
-    container_name: hotel_svc
-    build: 
-      context: hotel_svc
     environment:
-      - kafkaURL: kafka:9092
-      - topic: hotel_svc
+      ALLOW_PLAINTEXT_LISTENER: yes
+
+  notification_svc:
+    container_name: notification_svc
+    build: 
+      context: notification_svc
+    environment:
+      - kafkaURL=kafka:9092
+      - topic=notification_svc
     depends_on:
       - kafka
     restart: always
