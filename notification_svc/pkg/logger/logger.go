@@ -4,8 +4,6 @@ import (
 	"log/slog"
 )
 
-//mock logger -> Grafana (future)
-
 type Logger struct {
 }
 

@@ -1,6 +1,8 @@
 package kafka
 
 import (
+	"context"
+	"fmt"
 	"strings"
 
 	kafka "github.com/segmentio/kafka-go"
@@ -17,9 +19,24 @@ func NewKafkaReader(kafkaURL, topic, groupID string) *kafka.Reader {
 	})
 }
 
-func NewKafkaWriter(kafkaURL, topic string) *kafka.Writer {
-	return &kafka.Writer{
+type KafkaWriter struct {
+	writer *kafka.Writer
+	topic  string
+}
+
+func NewKafkaWriter(kafkaURL, topic string) *KafkaWriter {
+	ww := &kafka.Writer{
 		Addr:  kafka.TCP(kafkaURL),
 		Topic: topic,
 	}
+	return &KafkaWriter{ww, topic}
+}
+
+func (w *KafkaWriter) Write(ctx context.Context, key, value string) error {
+	msg := kafka.Message{
+		Key:   []byte(key),
+		Value: []byte(fmt.Sprint(key)),
+	}
+	err := w.writer.WriteMessages(context.Background(), msg)
+	return err
 }
