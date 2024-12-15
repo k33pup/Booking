@@ -22,10 +22,10 @@ func NewClient(url string) *Client {
 	return &Client{client: client}
 }
 
-func (c *Client) BookRoom(room models.BookedRoom) error {
+func (c *Client) BookRoom(ctx context.Context, room models.BookedRoom) error {
 
-	booked_room := mapper.ToOpenApiBookedRoom(room)
-	req := c.client.DefaultAPI.BookRoomPost(context.Background()).BookedRoom(booked_room)
+	bookedRoom := mapper.ToOpenApiBookedRoom(room)
+	req := c.client.DefaultAPI.BookRoomPost(ctx).BookedRoom(bookedRoom)
 
 	_, httpResp, err := c.client.DefaultAPI.BookRoomPostExecute(req)
 	if err != nil {
@@ -40,8 +40,8 @@ func (c *Client) BookRoom(room models.BookedRoom) error {
 	return nil
 }
 
-func (c *Client) GetBookedRoomsList(hotelID string) ([]models.BookedRoom, error) {
-	req := c.client.DefaultAPI.GetBookedRooms(context.Background(), hotelID)
+func (c *Client) GetBookedRoomsList(ctx context.Context, hotelID string) ([]models.BookedRoom, error) {
+	req := c.client.DefaultAPI.GetBookedRooms(ctx, hotelID)
 
 	resp, httpResp, err := c.client.DefaultAPI.GetBookedRoomsExecute(req)
 	if err != nil {
@@ -55,8 +55,8 @@ func (c *Client) GetBookedRoomsList(hotelID string) ([]models.BookedRoom, error)
 	return mapper.ToModelsBookedRoomList(resp), nil
 }
 
-func (c *Client) GetUnbookedRoomsList(hotelID string) ([]models.Room, error) {
-	req := c.client.DefaultAPI.GetUnbookedRooms(context.Background(), hotelID)
+func (c *Client) GetUnbookedRoomsList(ctx context.Context, hotelID string) ([]models.Room, error) {
+	req := c.client.DefaultAPI.GetUnbookedRooms(ctx, hotelID)
 
 	resp, httpResp, err := c.client.DefaultAPI.GetUnbookedRoomsExecute(req)
 	if err != nil {
