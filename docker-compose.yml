@@ -10,6 +10,7 @@ services:
     environment:
       ALLOW_ANONYMOUS_LOGIN: yes
       ALLOW_PLAINTEXT_LISTENER: yes
+    restart: always
 
   kafka:
     hostname: kafka
@@ -35,6 +36,7 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
+    restart: always
 
   notification_svc:
     container_name: notification_svc
@@ -46,5 +48,4 @@ services:
     depends_on: 
       kafka:
         condition: service_healthy
-
-#TODO restart always
+    restart: always
