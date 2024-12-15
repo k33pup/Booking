@@ -19,11 +19,12 @@ import (
 	"github.com/k33pup/Booking/internal/usecases"
 	k "github.com/k33pup/Booking/notification_svc/pkg/kafka"
 	payment "github.com/k33pup/Booking/payment_svc/pkg/client"
-	payment_models "github.com/k33pup/Booking/payment_svc/pkg/models"
+	//payment_models "github.com/k33pup/Booking/payment_svc/pkg/models"
 	kafka "github.com/segmentio/kafka-go"
 	"log/slog"
-	"math/rand"
+	//"math/rand"
 	"net/http"
+	"time"
 )
 
 // DefaultAPIService is a service that implements the logic for the DefaultAPIServicer
@@ -155,11 +156,13 @@ func (s *DefaultAPIService) BookRoomPost(ctx context.Context, bookedRoom BookedR
 		return Response(http.StatusInternalServerError, nil), err
 	}
 
-	s.p_cl.CreatePayment(payment_models.PaymentM{
-		RoomId:     bookedRoom.ID,
-		Amount:     float64(rand.Intn(10) + 10),
-		WebhookUrl: "booking_service:9083/webhook/approve-payment",
-	})
+	//s.p_cl.CreatePayment(payment_models.PaymentM{
+	//	RoomId:     bookedRoom.ID,
+	//	Amount:     float64(rand.Intn(10) + 10),
+	//	WebhookUrl: "booking_service:9083/webhook/approve-payment",
+	//})
+	time.Sleep(10 * time.Second)
+	s.useCase.ApproveRoom(ctx, bookedRoom.ID)
 	s.log.Info("Room reserved successfully", "room_id", bookedRoom.ID)
 	return Response(http.StatusCreated, newBookedRoom), nil
 }
