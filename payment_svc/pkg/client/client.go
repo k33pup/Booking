@@ -3,8 +3,9 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/k33pup/Booking.git/internal/domain"
-	openapi "github.com/k33pup/Booking.git/internal/pkg/api/http/generated_api/generated_client"
+	"github.com/k33pup/Booking/payment_svc/internal/domain"
+	openapi "github.com/k33pup/Booking/payment_svc/internal/pkg/transport/http/generated_api/generated_client"
+	mapper "github.com/k33pup/Booking/payment_svc/internal/pkg/transport/http/generated_api/generated_server/go"
 	"net/http"
 )
 
@@ -14,33 +15,28 @@ type Client struct {
 
 func NewClient(url string) *Client {
 	cfg := &openapi.Configuration{
-		Host:       url,
+		Servers: openapi.ServerConfigurations{
+			{URL: url},
+		},
 		HTTPClient: http.DefaultClient,
 	}
 	client := openapi.NewAPIClient(cfg)
 	return &Client{client: client}
 }
 
-func (c *Client) HandlePayment(pay domain.Payment) error {
-	// Преобразование domain.Payment в сгенерированный Payment
-	payment := openapi.Payment{
-		Price:  float32(pay.Price),
-		RoomId: pay.RoomId,
-	}
+func (c *Client) CreatePayment(payment domain.Payment) error {
+	apiPayment := mapper.FromDomainPayment(payment)
+	req := c.client.DefaultAPI.CreatePaymentPost(context.Background()).CreatePaymentPostRequest(*apiPayment)
 
-	req := c.client.DefaultAPI.HandlePayment(context.Background()).Payment(payment)
-
-	resp, httpResp, err := c.client.DefaultAPI.HandlePaymentExecute(req)
+	resp, httpResp, err := c.client.DefaultAPI.CreatePaymentPostExecute(req)
 	if err != nil {
-		// Обработка ошибки
-		return fmt.Errorf("failed to handle payment: %v", err)
+		return fmt.Errorf("failed to create payment: %v", err)
 	}
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d", httpResp.StatusCode)
 	}
-
-	fmt.Printf("Response: %v\n", resp.Message)
+	fmt.Printf("Response: %s\n", resp)
 	return nil
 }

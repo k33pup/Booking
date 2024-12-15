@@ -1,0 +1,16 @@
+.gitignore
+.travis.yml
+README.md
+api/openapi.yaml
+api_default.go
+client.go
+configuration.go
+docs/CreatePaymentPostRequest.md
+docs/DefaultAPI.md
+git_push.sh
+go.mod
+go.sum
+model__create_payment_post_request.go
+response.go
+test/api_default_test.go
+utils.go
