@@ -15,9 +15,9 @@ import (
 func main() {
 	bs, err := app.NewBookingService()
 	if err != nil {
-		log, log_err := logger.NewLogger()
-		if log_err != nil {
-			panic(log_err)
+		log, logErr := logger.NewLogger()
+		if logErr != nil {
+			panic(logErr)
 		}
 		log.Error("Failed to create booking service")
 		os.Exit(1)
