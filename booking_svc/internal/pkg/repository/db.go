@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/k33pup/Booking.git/internal/domain"
+	"github.com/k33pup/Booking/internal/domain"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"

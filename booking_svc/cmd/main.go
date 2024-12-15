@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/k33pup/Booking.git/internal/pkg/app"
-	"github.com/k33pup/Booking.git/internal/pkg/logger"
+	"github.com/k33pup/Booking/internal/pkg/app"
+	"github.com/k33pup/Booking/internal/pkg/logger"
 	"os"
 	"os/signal"
 	"sync"

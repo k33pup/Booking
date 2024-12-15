@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/k33pup/Booking.git/internal/pkg/config"
+	"github.com/k33pup/Booking/internal/pkg/config"
 	"log/slog"
 	"os"
 )

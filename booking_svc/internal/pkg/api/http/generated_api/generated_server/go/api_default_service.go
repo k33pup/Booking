@@ -13,9 +13,9 @@ package openapi
 import (
 	"context"
 	"errors"
-	"github.com/k33pup/Booking.git/internal/domain"
-	"github.com/k33pup/Booking.git/internal/pkg/logger"
-	"github.com/k33pup/Booking.git/internal/usecases"
+	"github.com/k33pup/Booking/internal/domain"
+	"github.com/k33pup/Booking/internal/pkg/logger"
+	"github.com/k33pup/Booking/internal/usecases"
 	"log/slog"
 	"net/http"
 )

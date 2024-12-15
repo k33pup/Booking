@@ -2,11 +2,11 @@ package app
 
 import (
 	"context"
-	my_http "github.com/k33pup/Booking.git/internal/pkg/api/http"
-	"github.com/k33pup/Booking.git/internal/pkg/config"
-	"github.com/k33pup/Booking.git/internal/pkg/logger"
-	"github.com/k33pup/Booking.git/internal/pkg/repository"
-	"github.com/k33pup/Booking.git/internal/usecases"
+	my_http "github.com/k33pup/Booking/internal/pkg/api/http"
+	"github.com/k33pup/Booking/internal/pkg/config"
+	"github.com/k33pup/Booking/internal/pkg/logger"
+	"github.com/k33pup/Booking/internal/pkg/repository"
+	"github.com/k33pup/Booking/internal/usecases"
 	"log/slog"
 )
 

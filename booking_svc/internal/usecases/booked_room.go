@@ -2,7 +2,7 @@ package usecases
 
 import (
 	"context"
-	"github.com/k33pup/Booking.git/internal/domain"
+	"github.com/k33pup/Booking/internal/domain"
 )
 
 type IBookedRoomUseCase interface {

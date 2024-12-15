@@ -1,4 +1,4 @@
-module github.com/k33pup/Booking.git
+module github.com/k33pup/Booking
 
 go 1.23.1
 
@@ -6,8 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/viper v1.19.0
-	golang.org/x/sync v0.6.0
-	gorm.io/driver/postgres v1.5.10
+	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
 )
 
@@ -54,6 +53,7 @@ require (
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect

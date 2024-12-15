@@ -3,9 +3,9 @@ package booking_client
 import (
 	"context"
 	"fmt"
-	openapi "github.com/k33pup/Booking.git/internal/pkg/api/http/generated_api/generated_client"
-	"github.com/k33pup/Booking.git/pkg/mapper"
-	"github.com/k33pup/Booking.git/pkg/models"
+	openapi "github.com/k33pup/Booking/internal/pkg/api/http/generated_api/generated_client"
+	"github.com/k33pup/Booking/pkg/mapper"
+	"github.com/k33pup/Booking/pkg/models"
 	"net/http"
 )
 

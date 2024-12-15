@@ -1,8 +1,8 @@
 package mapper
 
 import (
-	openapi "github.com/k33pup/Booking.git/internal/pkg/api/http/generated_api/generated_client"
-	"github.com/k33pup/Booking.git/pkg/models"
+	openapi "github.com/k33pup/Booking/internal/pkg/api/http/generated_api/generated_client"
+	"github.com/k33pup/Booking/pkg/models"
 )
 
 func ToOpenApiBookedRoom(bookedRoom models.BookedRoom) openapi.BookedRoom {

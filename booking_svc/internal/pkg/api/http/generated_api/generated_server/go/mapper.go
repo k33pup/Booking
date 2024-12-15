@@ -1,7 +1,7 @@
 package openapi
 
 import (
-	"github.com/k33pup/Booking.git/internal/domain"
+	"github.com/k33pup/Booking/internal/domain"
 )
 
 func ToDomainBookedRoom(bookedRoom BookedRoom) *domain.BookedRoom {
