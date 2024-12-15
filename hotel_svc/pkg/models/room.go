@@ -5,5 +5,5 @@ type Room struct {
 	HotelId     string
 	Name        string
 	Description string
-	Price       uint64
+	Price       uint64 `json:"price,string"`
 }

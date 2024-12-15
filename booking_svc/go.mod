@@ -5,7 +5,7 @@ go 1.23.1
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/gorilla/mux v1.8.1
-	github.com/k33pup/Booking/hotel_svc v0.0.0-20241215192436-95dddc9cbd64
+	github.com/k33pup/Booking/hotel_svc v0.0.0-20241215214920-a095d5c25fed
 	github.com/k33pup/Booking/notification_svc v0.0.0-20241215192436-95dddc9cbd64
 	github.com/k33pup/Booking/payment_svc v0.0.0-20241215202609-5c2ff2935660
 	github.com/segmentio/kafka-go v0.4.47
