@@ -1,16 +1,104 @@
 services:
-  payment_svc:
-    container_name: payment_service
-    build:
-      context: ./payment_svc
-      dockerfile: Dockerfile
+#notification_svc
+  zookeeper:
+    hostname: zookeeper
+    image: bitnami/zookeeper:latest
+    expose:
+      - "2181"
     ports:
-      - "9041:${PAYMENT_HTTP_SERVER_PORT}"
+      - "2181:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: yes
+      ALLOW_PLAINTEXT_LISTENER: yes
+    restart: always
+
+  kafka:
+    hostname: kafka
+    image: bitnami/kafka:2.7.0
     env_file:
-      - .env
-      - ./payment_svc/.env
+      - notification_svc/pkg/kafka/kafka-variables.env
+    depends_on:
+      - zookeeper
+    expose:
+      - "9092"
+      - "8082"
+      - "8083"
+    ports:
+      - "9092:9092"
+      - "8082:8082"
+      - "8083:8083"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: always
+
+  notification_svc:
+    container_name: notification_svc
+    build:
+      context: notification_svc
+    environment:
+      - kafkaURL=kafka:9092
+      - topic=notification_svc
+    depends_on: 
+      kafka:
+        condition: service_healthy
+    restart: always
+#hotel_svc
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - ./hotel_svc/.env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - booking_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - booking_network
+
+  hotel_svc:
+    container_name: hotel_service
+    build:
+      context: ./hotel_svc
+      dockerfile: Dockerfile
+    env_file:
+      - ./hotel_svc/.env
+      - .env
+    ports:
+      - "9091:${HOTEL_GRPC_SERVER_PORT}"
+      - "9092:${HOTEL_HTTP_SERVER_PORT}"
+    networks:
+      - booking_network
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 networks:
   booking_network:
@@ -18,5 +106,5 @@ networks:
     name: booking_network
 
 volumes:
-  payment_service_data:
-
+  postgres-data:
+  pgadmin-data:
