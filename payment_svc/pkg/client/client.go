@@ -3,9 +3,9 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/k33pup/Booking/payment_svc/internal/domain"
 	openapi "github.com/k33pup/Booking/payment_svc/internal/pkg/transport/http/generated_api/generated_client"
 	mapper "github.com/k33pup/Booking/payment_svc/internal/pkg/transport/http/generated_api/generated_server/go"
+	"github.com/k33pup/Booking/payment_svc/pkg/models"
 	"net/http"
 )
 
@@ -24,8 +24,8 @@ func NewClient(url string) *Client {
 	return &Client{client: client}
 }
 
-func (c *Client) CreatePayment(payment domain.Payment) error {
-	apiPayment := mapper.FromDomainPayment(payment)
+func (c *Client) CreatePayment(payment models.PaymentM) error {
+	apiPayment := mapper.FromDomainPayment(models.ToDomainPayment(payment))
 	req := c.client.DefaultAPI.CreatePaymentPost(context.Background()).CreatePaymentPostRequest(*apiPayment)
 
 	resp, httpResp, err := c.client.DefaultAPI.CreatePaymentPostExecute(req)
