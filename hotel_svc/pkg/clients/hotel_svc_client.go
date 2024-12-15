@@ -1,94 +1,213 @@
-package clients
+package hotelclient
 
 import (
-	"context"
-	"github.com/k33pup/Booking/hotel_svc/internal/pkg/transport/grpc/generated"
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/k33pup/Booking/hotel_svc/pkg/models"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/connectivity"
+	"net/http"
 )
 
-type GrpcHotelClient struct {
-	grpcClient generated.HotelServiceClient
-	conn       *grpc.ClientConn
+type Client struct {
+	baseURL    string
+	httpClient *http.Client
 }
 
-func NewGrpcHotelClient(url string) (*GrpcHotelClient, error) {
-	clientConn, err := grpc.NewClient(url)
-	if err != nil {
-		return nil, err
+func NewClient(baseURL string) *Client {
+	return &Client{
+		baseURL:    baseURL,
+		httpClient: &http.Client{},
 	}
-	return &GrpcHotelClient{
-		grpcClient: generated.NewHotelServiceClient(clientConn),
-		conn:       clientConn,
-	}, nil
 }
 
-func (g *GrpcHotelClient) Close() {
-	if g.conn != nil && g.conn.GetState() != connectivity.Shutdown {
-		g.conn.Close()
-	}
-}
-func (g *GrpcHotelClient) GetHotelsList(ctx context.Context) ([]*models.Hotel, error) {
-	resp, err := g.grpcClient.GetHotelsList(ctx, nil)
+func (c *Client) GetHotelsList() ([]models.Hotel, error) {
+	resp, err := c.httpClient.Get(fmt.Sprintf("%s/hotels", c.baseURL))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch hotels list: %w", err)
 	}
-	return models.ToListModelHotel(resp.Hotels), nil
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result struct {
+		Hotels []models.Hotel `json:"hotels"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return result.Hotels, nil
 }
 
-func (g *GrpcHotelClient) GetHotelById(ctx context.Context, hotelId string) (*models.Hotel, error) {
-	resp, err := g.grpcClient.GetHotelById(ctx, &generated.GetHotelByIdRequest{HotelId: hotelId})
+// CreateHotel создает новый отель.
+func (c *Client) CreateHotel(hotel models.Hotel) (*models.Hotel, error) {
+	payload, err := json.Marshal(hotel)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to marshal hotel: %w", err)
 	}
-	return models.ToModelHotel(resp.Hotel), nil
+
+	resp, err := c.httpClient.Post(fmt.Sprintf("%s/hotels", c.baseURL), "application/json", bytes.NewReader(payload))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create hotel: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result struct {
+		Hotel models.Hotel `json:"hotel"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return &result.Hotel, nil
 }
 
-func (g *GrpcHotelClient) CreateHotel(ctx context.Context, hotel *models.Hotel) (*models.Hotel, error) {
-	resp, err := g.grpcClient.CreateHotel(ctx, models.ToCreateHotelRequest(hotel))
+// DeleteHotel удаляет отель по ID.
+func (c *Client) DeleteHotel(hotelID string) (bool, error) {
+	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/hotels?hotelId=%s", c.baseURL, hotelID), nil)
 	if err != nil {
-		return nil, err
+		return false, fmt.Errorf("failed to create request: %w", err)
 	}
-	return models.ToModelHotel(resp.Hotel), nil
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("failed to delete hotel: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result struct {
+		Success bool `json:"success"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return false, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return result.Success, nil
 }
 
-func (g *GrpcHotelClient) DeleteHotel(ctx context.Context, hotelId string) (bool, error) {
-	resp, err := g.grpcClient.DeleteHotel(ctx, &generated.DeleteHotelRequest{HotelId: hotelId})
+// GetHotelByID получает информацию о конкретном отеле по ID.
+func (c *Client) GetHotelByID(hotelID string) (*models.Hotel, error) {
+	resp, err := c.httpClient.Get(fmt.Sprintf("%s/hotels/%s", c.baseURL, hotelID))
 	if err != nil {
-		return resp.Success, err
+		return nil, fmt.Errorf("failed to fetch hotel by ID: %w", err)
 	}
-	return resp.Success, nil
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result struct {
+		Hotel models.Hotel `json:"hotel"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return &result.Hotel, nil
 }
 
-func (g *GrpcHotelClient) GetRoomsByHotelId(ctx context.Context, hotelId string) ([]*models.Room, error) {
-	resp, err := g.grpcClient.GetRoomsByHotelId(ctx, &generated.GetRoomsByHotelIdRequest{HotelId: hotelId})
-	if err != nil {
-		return nil, err
+// CreateRoom отправляет запрос на создание новой комнаты.
+func (c *Client) CreateRoom(hotelID, name, description string, price uint64) (*models.Room, error) {
+	url := fmt.Sprintf("%s/rooms", c.baseURL)
+
+	requestBody := map[string]interface{}{
+		"hotelId":     hotelID,
+		"name":        name,
+		"description": description,
+		"price":       price,
 	}
-	return models.ToListModelRoom(resp.Rooms), nil
+
+	body, err := json.Marshal(requestBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request body: %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var response struct {
+		Room *models.Room `json:"room"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return response.Room, nil
 }
 
-func (g *GrpcHotelClient) GetRoomById(ctx context.Context, roomId string) (*models.Room, error) {
-	resp, err := g.grpcClient.GetRoomById(ctx, &generated.GetRoomByIdRequest{RoomId: roomId})
+// GetRoomsByHotelId возвращает список всех комнат в указанном отеле.
+func (c *Client) GetRoomsByHotelId(hotelID string) ([]models.Room, error) {
+	url := fmt.Sprintf("%s/hotels/%s/rooms", c.baseURL, hotelID)
+
+	resp, err := c.httpClient.Get(url)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
-	return models.ToModelRoom(resp.Room), nil
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var response struct {
+		Rooms []models.Room `json:"rooms"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return response.Rooms, nil
 }
 
-func (g *GrpcHotelClient) CreateRoom(ctx context.Context, room *models.Room) (*models.Room, error) {
-	resp, err := g.grpcClient.CreateRoom(ctx, models.ToCreateRoomRequest(room))
-	if err != nil {
-		return nil, err
-	}
-	return models.ToModelRoom(resp.Room), nil
-}
+// DeleteRoom удаляет существующую комнату по её ID.
+func (c *Client) DeleteRoom(roomID string) (bool, error) {
+	url := fmt.Sprintf("%s/rooms", c.baseURL)
 
-func (g *GrpcHotelClient) DeleteRoom(ctx context.Context, roomId string) (bool, error) {
-	resp, err := g.grpcClient.DeleteRoom(ctx, &generated.DeleteRoomRequest{RoomId: roomId})
+	req, err := http.NewRequest(http.MethodDelete, url+"?roomId="+roomID, nil)
 	if err != nil {
-		return resp.Success, err
+		return false, fmt.Errorf("failed to create request: %w", err)
 	}
-	return resp.Success, nil
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var response struct {
+		Success bool `json:"success"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return false, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return response.Success, nil
 }

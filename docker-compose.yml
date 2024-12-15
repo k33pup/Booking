@@ -122,6 +122,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      hotel_svc:
+        condition: service_started
 
   payment_svc:
     container_name: payment_service
