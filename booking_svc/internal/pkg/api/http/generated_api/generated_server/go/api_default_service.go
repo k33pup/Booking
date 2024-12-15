@@ -17,7 +17,13 @@ import (
 	"github.com/k33pup/Booking/internal/pkg/logger"
 	"github.com/k33pup/Booking/internal/usecases"
 	"log/slog"
+	"math/rand"
 	"net/http"
+	hotel_cl "github.com/k33pup/Booking/hotel_svc/pkg/clients"
+	kafka "github.com/segmentio/kafka-go"
+	k "github.com/k33pup/Booking/notification_svc/pkg/kafka"
+	payment "github.com/k33pup/Booking/payment_svc/pkg/client"
+	payment_models "github.com/k33pup/Booking/payment_svc/pkg/models"
 )
 
 // DefaultAPIService is a service that implements the logic for the DefaultAPIServicer
@@ -26,12 +32,18 @@ import (
 type DefaultAPIService struct {
 	useCase usecases.IBookedRoomRepository
 	log    *slog.Logger
+	hot_cl *hotel_cl.GrpcHotelClient
+	k_w *kafka.Writer
+	p_cl *payment.Client
 }
 
 // NewDefaultAPIService creates a default generated_api service
 func NewDefaultAPIService(useCase usecases.IBookedRoomRepository) *DefaultAPIService {
 	log, _ := logger.NewLogger()
-	return &DefaultAPIService{useCase, log}
+	h_cl, _ := hotel_cl.NewGrpcHotelClient("hotel_service:9098")
+	k_w := k.NewKafkaWriter("kafka:9092", "notification_svc")
+	p_cl := payment.NewClient("payment_service:9041")
+	return &DefaultAPIService{useCase, log, h_cl, k_w, p_cl}
 }
 
 // ApprovePaymentWebhook - Webhook для подтверждения платежа
@@ -39,7 +51,6 @@ func (s *DefaultAPIService) ApprovePaymentWebhook(ctx context.Context, approvePa
 	if !approvePaymentWebhookRequest.Approve {
 		// Логируем отмену платежа
 		s.log.Info("Payment not approved, unreserving room", "room_id", approvePaymentWebhookRequest.RoomId)
-		// TODO send that payment is canceled
 		err := s.useCase.UnReserveRoom(ctx, approvePaymentWebhookRequest.RoomId)
 		if err != nil {
 			s.log.Error("Failed to unreserve room", "room_id", approvePaymentWebhookRequest.RoomId, "error", err)
@@ -68,8 +79,10 @@ func (s *DefaultAPIService) ApprovePaymentWebhook(ctx context.Context, approvePa
 func (s *DefaultAPIService) GetUnbookedRooms(ctx context.Context, hotelId string) (ImplResponse, error) {
 	s.log.Info("Fetching unbooked rooms", "hotel_id", hotelId)
 
-	var hotelsRooms []domain.Room
-	// TODO обращение к сервису hotel забираем комнаты
+	hotelsRooms, err := s.hot_cl.GetRoomsByHotelId(ctx, hotelId)
+	if err != nil {
+		return Response(http.StatusInternalServerError, nil), err
+	}
 	var unbookedRooms []domain.Room
 	for _, room := range hotelsRooms {
 		isBooked, err := s.useCase.IsRoomBooked(ctx, room.Id)
@@ -78,7 +91,13 @@ func (s *DefaultAPIService) GetUnbookedRooms(ctx context.Context, hotelId string
 			return Response(http.StatusInternalServerError, err), nil
 		}
 		if !isBooked {
-			unbookedRooms = append(unbookedRooms, room)
+			unbookedRooms = append(unbookedRooms, domain.Room{
+				Id: room.Id,
+				HotelId: room.HotelId,
+				Price: room.Price,
+				Description: room.Description,
+				Name: room.Name,
+			})
 		}
 	}
 
@@ -136,7 +155,11 @@ func (s *DefaultAPIService) BookRoomPost(ctx context.Context, bookedRoom BookedR
 		return Response(http.StatusInternalServerError, nil), err
 	}
 
-	// TODO ask payment to approve
+	s.p_cl.CreatePayment(payment_models.PaymentM{
+		RoomId: bookedRoom.ID,
+		Amount: float64(rand.Intn(10) + 10),
+		WebhookUrl: "booking_service:9083/webhook/approve-payment",
+	})
 	s.log.Info("Room reserved successfully", "room_id", bookedRoom.ID)
 	return Response(http.StatusCreated, newBookedRoom), nil
 }
