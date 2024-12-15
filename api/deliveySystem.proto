@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "github.com/k33pup/Booking";
+option java_outer_classname = "deliverySystemProto";
+
+
+package booking;
+
+
+service Sender {
+    rpc SendMail (SendMailRequest) returns (SendMailReply) {}
+}
+
+message SendMailRequest {
+    string mail = 1;
+}
+
+message SendMailReply {
+    string result = 1;
+}
