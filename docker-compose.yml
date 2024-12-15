@@ -99,6 +99,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+#payment_svc
+  payment_svc:
+    container_name: payment_service
+    build:
+      context: ./payment_svc
+      dockerfile: Dockerfile
+    ports:
+      - "9041:${PAYMENT_HTTP_SERVER_PORT}"
+    env_file:
+      - .env
+      - ./payment_svc/.env
+    networks:
+      - booking_network
 
 networks:
   booking_network:
