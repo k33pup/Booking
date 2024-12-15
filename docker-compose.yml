@@ -1,42 +1,50 @@
+version: "3.9"
 services:
   zookeeper:
     hostname: zookeeper
     image: bitnami/zookeeper:latest
-    restart: always
     expose:
-    - "2181"
+      - "2181"
     ports:
-    - "2181:2181"
+      - "2181:2181"
     environment:
       ALLOW_ANONYMOUS_LOGIN: yes
       ALLOW_PLAINTEXT_LISTENER: yes
-  
+
   kafka:
     hostname: kafka
     image: bitnami/kafka:2.7.0
-    restart: always
     env_file:
-    - notification_svc/pkg/kafka/kafka-variables.env
+      - notification_svc/pkg/kafka/kafka-variables.env
     depends_on:
-    - zookeeper
+      - zookeeper
     expose:
-    - "9092"
-    - "8082"
-    - "8083"
+      - "9092"
+      - "8082"
+      - "8083"
     ports:
-    - '9092:9092'
-    - '8082:8082'
-    - '8083:8083'
+      - "9092:9092"
+      - "8082:8082"
+      - "8083:8083"
     environment:
       ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 
   notification_svc:
     container_name: notification_svc
-    build: 
+    build:
       context: notification_svc
     environment:
       - kafkaURL=kafka:9092
       - topic=notification_svc
-    depends_on:
-      - kafka
-    restart: always
+    depends_on: 
+      kafka:
+        condition: service_healthy
+
+#TODO restart always

@@ -10,7 +10,7 @@ type KafkaConfig struct {
 
 func LoadKafkaConfig() KafkaConfig {
 	kafkaURL := os.Getenv("kafkaURL")
-	topic := os.Getenv("notificationTopic")
+	topic := os.Getenv("topic")
 	groupID := os.Getenv("groupID")
 
 	return KafkaConfig{KafkaURL: kafkaURL, Topic: topic, GroupID: groupID}
