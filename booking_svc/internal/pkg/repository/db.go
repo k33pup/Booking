@@ -78,7 +78,7 @@ func (r *BookedRoomRepository) ApproveRoom(ctx context.Context, roomId string) e
 func (r *BookedRoomRepository) GetBookedRoomsList(ctx context.Context, hotelId string) ([]domain.BookedRoom, error) {
 	var bookedRooms []domain.BookedRoom
 
-	if err := r.db.Table("booked_rooms").Find(&bookedRooms).Error; err != nil {
+	if err := r.db.Table("booked_rooms").Where("hotel_id = ?", hotelId).Find(&bookedRooms).Error; err != nil {
 		return nil, fmt.Errorf("retrieving rooms list from database: %v", err)
 	}
 

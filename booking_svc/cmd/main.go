@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/k33pup/Booking.git/internal/pkg/app"
+	"github.com/k33pup/Booking.git/internal/pkg/logger"
 	"os"
 	"os/signal"
 	"sync"
@@ -14,7 +15,11 @@ import (
 func main() {
 	bs, err := app.NewBookingService()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error initializing booking service: %v\n", err)
+		log, log_err := logger.NewLogger()
+		if log_err != nil {
+			panic(log_err)
+		}
+		log.Error("Failed to create booking service")
 		os.Exit(1)
 	}
 

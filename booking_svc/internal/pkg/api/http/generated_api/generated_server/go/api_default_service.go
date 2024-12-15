@@ -14,11 +14,10 @@ import (
 	"context"
 	"errors"
 	"github.com/k33pup/Booking.git/internal/domain"
-	"github.com/k33pup/Booking.git/internal/pkg/config"
+	"github.com/k33pup/Booking.git/internal/pkg/logger"
 	"github.com/k33pup/Booking.git/internal/usecases"
 	"log/slog"
 	"net/http"
-	"os"
 )
 
 // DefaultAPIService is a service that implements the logic for the DefaultAPIServicer
@@ -31,12 +30,7 @@ type DefaultAPIService struct {
 
 // NewDefaultAPIService creates a default generated_api service
 func NewDefaultAPIService(useCase usecases.IBookedRoomRepository) *DefaultAPIService {
-	logFilePath, _ := config.LoadLogFilePath()
-	logFile, _ := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	handler := slog.NewTextHandler(logFile, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	})
-	log := slog.New(handler)
+	log, _ := logger.NewLogger()
 	return &DefaultAPIService{useCase, log}
 }
 

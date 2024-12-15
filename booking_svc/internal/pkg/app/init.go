@@ -4,31 +4,23 @@ import (
 	"context"
 	my_http "github.com/k33pup/Booking.git/internal/pkg/api/http"
 	"github.com/k33pup/Booking.git/internal/pkg/config"
+	"github.com/k33pup/Booking.git/internal/pkg/logger"
 	"github.com/k33pup/Booking.git/internal/pkg/repository"
 	"github.com/k33pup/Booking.git/internal/usecases"
 	"log/slog"
-	"os"
 )
 
 type BookingService struct {
 	server *my_http.Server
 	repo   *repository.BookedRoomRepository
-	log    *slog.Logger
+	Log    *slog.Logger
 }
 
 func NewBookingService() (*BookingService, error) {
-	logFilePath, err := config.LoadLogFilePath()
+	log, err := logger.NewLogger()
 	if err != nil {
 		return nil, err
 	}
-	logFile, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return nil, err
-	}
-	handler := slog.NewTextHandler(logFile, &slog.HandlerOptions{
-		Level: slog.LevelInfo, // Устанавливаем минимальный уровень логирования
-	})
-	log := slog.New(handler)
 	dsn, err := config.GetDsnString()
 	if err != nil {
 		return nil, err
@@ -39,11 +31,11 @@ func NewBookingService() (*BookingService, error) {
 	}
 	useCase := usecases.NewBookedRoomUseCase(repo)
 	server := my_http.NewServer(useCase)
-	return &BookingService{server: server, repo: repo, log: log}, nil
+	return &BookingService{server: server, repo: repo, Log: log}, nil
 }
 
 func (b *BookingService) Start(ctx context.Context) error {
-	b.log.Info("Booking service started")
+	b.Log.Info("Booking service started")
 	err := b.server.Start()
 	if err != nil {
 		return err
@@ -52,7 +44,7 @@ func (b *BookingService) Start(ctx context.Context) error {
 }
 
 func (b *BookingService) Stop(ctx context.Context) error {
-	b.log.Info("Booking service stopped")
+	b.Log.Info("Booking service stopped")
 	err := b.server.Stop(ctx)
 	if err != nil {
 		return err
