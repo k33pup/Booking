@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/k33pup/Booking.git";
+option go_package = "github.com/k33pup/Booking";
 option java_outer_classname = "deliverySystemProto";
 
 

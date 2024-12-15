@@ -1,12 +1,14 @@
 package app
 
 import (
-	config "booking/notification_svc/internal/config"
-	grpcClient "booking/notification_svc/internal/pkg/api/grpc"
-	deliverysystem "booking/notification_svc/internal/usecases"
-	kafkahandler "booking/notification_svc/pkg/kafka"
-	logger "booking/notification_svc/pkg/logger"
 	"context"
+	"errors"
+
+	config "github.com/k33pup/Booking/notification_svc/internal/config"
+	grpcClient "github.com/k33pup/Booking/notification_svc/internal/pkg/api/grpc"
+	deliverysystem "github.com/k33pup/Booking/notification_svc/internal/usecases"
+	kafkahandler "github.com/k33pup/Booking/notification_svc/pkg/kafka"
+	logger "github.com/k33pup/Booking/notification_svc/pkg/logger"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -32,18 +34,29 @@ func NewNotificationService() (*NotificationService, error) {
 func (nsvc *NotificationService) Start(ctx context.Context) error {
 	nsvc.logger.LogInfo("Start hotel svc...")
 	for {
-		if m, err := nsvc.kafkaReader.ReadMessage(context.Background()); err != nil {
+		m, err := nsvc.kafkaReader.ReadMessage(ctx)
+		if errors.Is(err, context.Canceled) {
+			nsvc.logger.LogInfo("Context is canceled. Stop reading kafka...")
+			return nil
+		}
+		if err != nil {
 			nsvc.logger.LogError(err)
 			return err
+		}
+		if string(m.Value) == "Success" {
+			nsvc.deliverySystemClient.SendMail(string(m.Value))
 		} else {
-			if string(m.Value) == "Success" {
-				nsvc.deliverySystemClient.SendMail(string(m.Value))
-			}
+			nsvc.deliverySystemClient.SendMail("Payment failed")
 		}
 	}
 }
 
-func (nsvc *NotificationService) Close() {
+func (nsvc *NotificationService) Stop() error {
 	nsvc.logger.LogInfo("End hotel svc...")
-	nsvc.kafkaReader.Close()
+	err := nsvc.kafkaReader.Close()
+	if err != nil {
+		nsvc.logger.LogError(err)
+		return err
+	}
+	return nil
 }

@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	pb "booking/notification_svc/internal/pkg/api/generated"
+	pb "github.com/k33pup/Booking/notification_svc/internal/pkg/api/generated"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
