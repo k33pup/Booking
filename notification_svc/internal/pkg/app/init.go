@@ -32,7 +32,7 @@ func NewNotificationService() (*NotificationService, error) {
 }
 
 func (nsvc *NotificationService) Start(ctx context.Context) error {
-	nsvc.logger.LogInfo("Start hotel svc...")
+	nsvc.logger.LogInfo("Start notify svc...")
 	for {
 		m, err := nsvc.kafkaReader.ReadMessage(ctx)
 		if errors.Is(err, context.Canceled) {
@@ -52,7 +52,7 @@ func (nsvc *NotificationService) Start(ctx context.Context) error {
 }
 
 func (nsvc *NotificationService) Stop() error {
-	nsvc.logger.LogInfo("End hotel svc...")
+	nsvc.logger.LogInfo("End notify svc...")
 	err := nsvc.kafkaReader.Close()
 	if err != nil {
 		nsvc.logger.LogError(err)

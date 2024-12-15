@@ -11,6 +11,8 @@ services:
       ALLOW_ANONYMOUS_LOGIN: yes
       ALLOW_PLAINTEXT_LISTENER: yes
     restart: always
+    networks:
+      - booking_network
 
   kafka:
     hostname: kafka
@@ -31,12 +33,14 @@ services:
       ALLOW_PLAINTEXT_LISTENER: yes
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     healthcheck:
-      test: ["CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092"]
+      test: [ "CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092" ]
       interval: 10s
       timeout: 10s
       retries: 5
       start_period: 20s
     restart: always
+    networks:
+      - booking_network
 
   notification_svc:
     container_name: notification_svc
@@ -45,20 +49,24 @@ services:
     environment:
       - kafkaURL=kafka:9092
       - topic=notification_svc
-    depends_on: 
+    depends_on:
       kafka:
         condition: service_healthy
     restart: always
+    networks:
+      - booking_network
+
 #hotel_svc
   postgres:
-    image: postgres:latest
-    container_name: postgres
+    image: postgres:16
+    container_name: postgres_container
+    restart: always
+    env_file:
+      - .env
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    env_file:
-      - ./hotel_svc/.env
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
@@ -73,9 +81,8 @@ services:
     restart: always
     ports:
       - "8888:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
-      PGADMIN_DEFAULT_PASSWORD: password
+    env_file:
+      - .env
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     depends_on:
@@ -92,13 +99,42 @@ services:
       - ./hotel_svc/.env
       - .env
     ports:
-      - "9091:${HOTEL_GRPC_SERVER_PORT}"
-      - "9092:${HOTEL_HTTP_SERVER_PORT}"
+      - "9098:${HOTEL_GRPC_SERVER_PORT}"
+      - "9099:${HOTEL_HTTP_SERVER_PORT}"
     networks:
       - booking_network
     depends_on:
       postgres:
         condition: service_healthy
+
+  booking_svc:
+    container_name: booking_service
+    build:
+      context: ./booking_svc
+      dockerfile: Dockerfile
+    env_file:
+      - ./booking_svc/.env
+      - .env
+    ports:
+      - "9083:9083"
+    networks:
+      - booking_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  payment_svc:
+    container_name: payment_service
+    build:
+      context: ./payment_svc
+      dockerfile: Dockerfile
+    ports:
+      - "9041:${PAYMENT_HTTP_SERVER_PORT}"
+    env_file:
+      - .env
+      - ./payment_svc/.env
+    networks:
+      - booking_network
 
 networks:
   booking_network:
