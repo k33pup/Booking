@@ -1,0 +1,193 @@
+syntax = "proto3";
+
+package proto.api.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "api/apiv1pb";
+
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Hotel service"
+  }
+};
+
+service HotelService {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "Service to work with hotels"
+  };
+
+  // Get the hotel list
+  rpc GetHotelsList(GetHotelsListRequest) returns (GetHotelsListResponse) {
+    option (google.api.http) = {
+      get: "/hotels"
+    };
+  }
+
+  // Get exact hotel by id
+  rpc GetHotelById(GetHotelByIdRequest) returns (GetHotelByIdResponse) {
+    option (google.api.http) = {
+      get: "/hotels/{hotel_id}"
+    };
+  }
+
+  // Create new hotel
+  rpc CreateHotel(CreateHotelRequest) returns (CreateHotelResponse) {
+    option (google.api.http) = {
+      post: "/hotels"
+      body: "*"
+    };
+  }
+
+  // Delete existing hotel
+  rpc DeleteHotel(DeleteHotelRequest) returns (DeleteHotelResponse) {
+    option (google.api.http) = {
+      delete: "/hotels"
+    };
+  }
+
+  // Get all rooms in exact hotel
+  rpc GetRoomsByHotelId(GetRoomsByHotelIdRequest) returns (GetRoomsByHotelIdResponse) {
+    option (google.api.http) = {
+      get: "/hotels/{hotel_id}/rooms"
+    };
+  }
+
+  // Get exact room by id
+  rpc GetRoomById(GetRoomByIdRequest) returns (GetRoomByIdResponse) {
+    option (google.api.http) = {
+      get: "/rooms/{room_id}"
+    };
+  }
+
+  // Create new room
+  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse) {
+    option(google.api.http) = {
+      post: "/rooms"
+      body: "*"
+    };
+  }
+
+  // Delete exact room
+  rpc DeleteRoom(DeleteRoomRequest) returns (DeleteRoomResponse) {
+    option(google.api.http) = {
+      delete: "/rooms"
+    };
+  }
+}
+
+message Hotel {
+  // Hotel ID
+  string hotel_id = 1;
+  // Hotel name
+  string name = 2;
+  // Hotel description
+  string description = 3;
+  // Hotel city
+  string city = 4;
+  // Hotel address
+  string address = 5;
+  // Hotel contacts
+  string contacts = 6;
+}
+
+message Room {
+  // Room ID
+  string room_id = 1;
+  // Hotel ID
+  string hotel_id = 2;
+  // Room name
+  string name = 3;
+  // Room description
+  string description = 4;
+  // Room price per night
+  uint64 price = 5;
+}
+
+message CreateHotelRequest {
+  // Hotel name
+  string name = 1;
+  // Hotel description
+  string description = 2;
+  // Hotel city
+  string city = 3;
+  // Hotel address
+  string address = 4;
+  // Hotel contacts
+  string contacts = 5;
+}
+
+message CreateHotelResponse {
+  // Hotel
+  Hotel hotel = 1;
+}
+
+message DeleteHotelRequest {
+  // Hotel id
+  string hotel_id = 1;
+}
+
+message DeleteHotelResponse {
+  // Operation success
+  bool success = 1;
+}
+
+message GetHotelByIdRequest {
+  // Hotel id
+  string hotel_id = 1;
+}
+
+message GetHotelByIdResponse {
+  // Hotel
+  Hotel hotel = 1;
+}
+
+message GetHotelsListRequest {}
+
+message GetHotelsListResponse {
+  //  Hotels list
+  repeated Hotel hotels = 1;
+}
+
+message GetRoomsByHotelIdRequest {
+  string hotel_id = 1;
+}
+
+message GetRoomsByHotelIdResponse {
+  repeated Room rooms = 1;
+}
+
+message GetRoomByIdRequest {
+  string room_id = 1;
+}
+
+message GetRoomByIdResponse {
+  Room room = 1;
+}
+
+message CreateRoomRequest {
+  // Hotel ID
+  string hotel_id = 1;
+  // Room name
+  string name = 2;
+  // Room description
+  string description = 3;
+  // Room price per night
+  uint64 price = 4;
+}
+
+message CreateRoomResponse {
+  Room room = 1;
+}
+
+message DeleteRoomRequest {
+  // Room id
+  string room_id = 1;
+}
+
+message DeleteRoomResponse {
+  // Operation success
+  bool success = 1;
+}

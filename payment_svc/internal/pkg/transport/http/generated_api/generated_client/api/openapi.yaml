@@ -1,0 +1,49 @@
+openapi: 3.0.0
+info:
+  description: API для обработки платежей за комнаты.
+  title: Payment System API
+  version: 1.0.0
+servers:
+- description: Local server for the payment system
+  url: http://localhost:8080
+paths:
+  /create-payment:
+    post:
+      description: Создает платеж и регистрирует вебхук для уведомлений о его статусе.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_create_payment_post_request'
+        required: true
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                example: Оплата создана успешно!
+                type: string
+          description: Платеж успешно создан
+        "400":
+          description: Неверный формат данных запроса
+        "500":
+          description: Ошибка на сервере
+      summary: Создать новый платеж
+components:
+  schemas:
+    _create_payment_post_request:
+      properties:
+        room_id:
+          description: ID комнаты
+          type: string
+        amount:
+          description: Сумма платежа
+          example: 100
+          format: float
+          type: number
+        webhook_url:
+          description: URL для получения уведомлений о статусе платежа
+          example: http://localhost:9090/webhook
+          format: uri
+          type: string
+      type: object

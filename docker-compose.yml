@@ -1,0 +1,148 @@
+services:
+#notification_svc
+  zookeeper:
+    hostname: zookeeper
+    image: bitnami/zookeeper:latest
+    expose:
+      - "2181"
+    ports:
+      - "2181:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: yes
+      ALLOW_PLAINTEXT_LISTENER: yes
+    restart: always
+    networks:
+      - booking_network
+
+  kafka:
+    hostname: kafka
+    image: bitnami/kafka:2.7.0
+    env_file:
+      - notification_svc/pkg/kafka/kafka-variables.env
+    depends_on:
+      - zookeeper
+    expose:
+      - "9092"
+      - "8082"
+      - "8083"
+    ports:
+      - "9092:9092"
+      - "8082:8082"
+      - "8083:8083"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    healthcheck:
+      test: [ "CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: always
+    networks:
+      - booking_network
+
+  notification_svc:
+    container_name: notification_svc
+    build:
+      context: notification_svc
+    environment:
+      - kafkaURL=kafka:9092
+      - topic=notification_svc
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: always
+    networks:
+      - booking_network
+
+#hotel_svc
+  postgres:
+    image: postgres:16
+    container_name: postgres_container
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - booking_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    env_file:
+      - .env
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - booking_network
+
+  hotel_svc:
+    container_name: hotel_service
+    build:
+      context: ./hotel_svc
+      dockerfile: Dockerfile
+    env_file:
+      - ./hotel_svc/.env
+      - .env
+    ports:
+      - "9098:${HOTEL_GRPC_SERVER_PORT}"
+      - "9099:${HOTEL_HTTP_SERVER_PORT}"
+    networks:
+      - booking_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  booking_svc:
+    container_name: booking_service
+    build:
+      context: ./booking_svc
+      dockerfile: Dockerfile
+    env_file:
+      - ./booking_svc/.env
+      - .env
+    ports:
+      - "9083:9083"
+    networks:
+      - booking_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      hotel_svc:
+        condition: service_started
+
+  payment_svc:
+    container_name: payment_service
+    build:
+      context: ./payment_svc
+      dockerfile: Dockerfile
+    ports:
+      - "9041:${PAYMENT_HTTP_SERVER_PORT}"
+    env_file:
+      - .env
+      - ./payment_svc/.env
+    networks:
+      - booking_network
+
+networks:
+  booking_network:
+    driver: bridge
+    name: booking_network
+
+volumes:
+  postgres-data:
+  pgadmin-data:
