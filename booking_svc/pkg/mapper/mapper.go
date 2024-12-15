@@ -36,18 +36,18 @@ func ToModelsRoom(bookedRoom openapi.Room) models.Room {
 	}
 }
 
-func ToModelsBookedRoomList(bookedRoom []openapi.BookedRoom) []models.BookedRoom {
-	var bookedRoomList []models.BookedRoom
-	for _, bookedRoom := range bookedRoom {
-		bookedRoomList = append(bookedRoomList, ToModelsBookedRoom(bookedRoom))
+func ToModelsBookedRoomList(bookedRooms []openapi.BookedRoom) []models.BookedRoom {
+	bookedRoomList := make([]models.BookedRoom, 0, len(bookedRooms))
+	for idx, bookedRoom := range bookedRooms {
+		bookedRoomList[idx] = ToModelsBookedRoom(bookedRoom)
 	}
 	return bookedRoomList
 }
 
-func ToModelsRoomList(bookedRoom []openapi.Room) []models.Room {
-	var roomList []models.Room
-	for _, room := range bookedRoom {
-		roomList = append(roomList, ToModelsRoom(room))
+func ToModelsRoomList(rooms []openapi.Room) []models.Room {
+	roomList := make([]models.Room, 0, len(rooms))
+	for idx, room := range rooms {
+		roomList[idx] = ToModelsRoom(room)
 	}
 	return roomList
 }
