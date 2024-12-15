@@ -21,7 +21,7 @@ func NewBookingService() (*BookingService, error) {
 	if err != nil {
 		return nil, err
 	}
-	dsn, err := config.GetDsnString()
+	dsn, err := config.Dsn()
 	if err != nil {
 		return nil, err
 	}
