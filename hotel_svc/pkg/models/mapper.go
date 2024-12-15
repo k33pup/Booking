@@ -1,7 +1,7 @@
 package models
 
 import (
-	"booking/hotel_svc/internal/pkg/transport/grpc/generated"
+	"github.com/k33pup/Booking/hotel_svc/internal/pkg/transport/grpc/generated"
 )
 
 func ToModelHotel(hotel *generated.Hotel) *Hotel {

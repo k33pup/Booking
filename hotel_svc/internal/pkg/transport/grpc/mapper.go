@@ -1,9 +1,9 @@
 package grpc
 
 import (
-	"booking/hotel_svc/internal/domain"
-	apiv1pb "booking/hotel_svc/internal/pkg/transport/grpc/generated"
-	"booking/hotel_svc/pkg/models"
+	"github.com/k33pup/Booking/hotel_svc/internal/domain"
+	apiv1pb "github.com/k33pup/Booking/hotel_svc/internal/pkg/transport/grpc/generated"
+	"github.com/k33pup/Booking/hotel_svc/pkg/models"
 )
 
 func ToModelsHotel(hotel *domain.Hotel) *models.Hotel {

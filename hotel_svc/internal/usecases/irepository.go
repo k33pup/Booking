@@ -1,8 +1,8 @@
 package usecases
 
 import (
-	"booking/hotel_svc/internal/domain"
 	"context"
+	"github.com/k33pup/Booking/hotel_svc/internal/domain"
 )
 
 type IHotelRepository interface {

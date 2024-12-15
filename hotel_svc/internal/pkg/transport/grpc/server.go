@@ -1,11 +1,11 @@
 package grpc
 
 import (
-	apiv1pb "booking/hotel_svc/internal/pkg/transport/grpc/generated"
-	"booking/hotel_svc/internal/pkg/transport/grpc/validation"
-	"booking/hotel_svc/internal/usecases"
 	"context"
 	"errors"
+	apiv1pb "github.com/k33pup/Booking/hotel_svc/internal/pkg/transport/grpc/generated"
+	"github.com/k33pup/Booking/hotel_svc/internal/pkg/transport/grpc/validation"
+	"github.com/k33pup/Booking/hotel_svc/internal/usecases"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"log/slog"

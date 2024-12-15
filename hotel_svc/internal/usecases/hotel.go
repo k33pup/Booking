@@ -1,9 +1,9 @@
 package usecases
 
 import (
-	"booking/hotel_svc/internal/domain"
 	"context"
 	"errors"
+	"github.com/k33pup/Booking/hotel_svc/internal/domain"
 )
 
 type IHotelUseCase interface {

@@ -1,9 +1,9 @@
 package clients
 
 import (
-	"booking/hotel_svc/internal/pkg/transport/grpc/generated"
-	"booking/hotel_svc/pkg/models"
 	"context"
+	"github.com/k33pup/Booking/hotel_svc/internal/pkg/transport/grpc/generated"
+	"github.com/k33pup/Booking/hotel_svc/pkg/models"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 )

@@ -1,9 +1,9 @@
 package validation
 
 import (
-	apiv1pb "booking/hotel_svc/internal/pkg/transport/grpc/generated"
 	"errors"
 	"github.com/go-playground/validator/v10"
+	apiv1pb "github.com/k33pup/Booking/hotel_svc/internal/pkg/transport/grpc/generated"
 )
 
 var validate = validator.New()

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"booking/hotel_svc/internal/pkg/app"
-	"booking/hotel_svc/internal/pkg/config"
 	"context"
 	"fmt"
+	"github.com/k33pup/Booking/hotel_svc/internal/pkg/app"
+	"github.com/k33pup/Booking/hotel_svc/internal/pkg/config"
 	"os"
 	"os/signal"
 	"syscall"

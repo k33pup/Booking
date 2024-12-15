@@ -1,6 +1,6 @@
 package postgres
 
-import "booking/hotel_svc/internal/domain"
+import "github.com/k33pup/Booking/hotel_svc/internal/domain"
 
 func ToDomainHotel(model *HotelModel) *domain.Hotel {
 	return &domain.Hotel{

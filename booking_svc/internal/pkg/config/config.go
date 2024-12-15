@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
+	"os"
 	"sync"
 )
 
@@ -33,27 +33,19 @@ var (
 func LoadConfig() (*Config, error) {
 	var err error
 	once.Do(func() {
-		viper.SetConfigFile("internal/pkg/config/.env")
-		viper.AutomaticEnv()
-
-		if e := viper.ReadInConfig(); e != nil {
-			err = fmt.Errorf("error reading config file: %v", e)
-			return
-		}
-
 		cfg = &Config{
 			DbConfig: DbConfig{
-				Host:     viper.GetString("DB_HOST"),
-				Port:     viper.GetString("DB_PORT"),
-				Username: viper.GetString("DB_USERNAME"),
-				Password: viper.GetString("DB_PASSWORD"),
-				Database: viper.GetString("DB_DATABASE"),
+				Host:     os.Getenv("POSTGRES_HOST"),
+				Port:     os.Getenv("POSTGRES_PORT"),
+				Username: os.Getenv("POSTGRES_USER"),
+				Password: os.Getenv("POSTGRES_PASSWORD"),
+				Database: os.Getenv("POSTGRES_DB"),
 			},
 			ServerConfig: ServerConfig{
-				Port: viper.GetString("SERVER_PORT"),
-				Host: viper.GetString("SERVER_HOST"),
+				Port: os.Getenv("SERVER_PORT"),
+				Host: os.Getenv("SERVER_HOST"),
 			},
-			LogFilePath: viper.GetString("LOG_FILE_PATH"),
+			LogFilePath: os.Getenv("LOG_FILE_PATH"),
 		}
 	})
 

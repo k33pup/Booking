@@ -1,4 +1,4 @@
-module booking/hotel_svc
+module github.com/k33pup/Booking/hotel_svc
 
 go 1.23.1
 

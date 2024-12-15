@@ -1,15 +1,15 @@
 package app
 
 import (
-	"booking/hotel_svc/internal/pkg/config"
-	"booking/hotel_svc/internal/pkg/repository/postgres"
-	impl "booking/hotel_svc/internal/pkg/transport/grpc"
-	apiv1pb "booking/hotel_svc/internal/pkg/transport/grpc/generated"
-	"booking/hotel_svc/internal/usecases"
 	"context"
 	"errors"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/k33pup/Booking/hotel_svc/internal/pkg/config"
+	"github.com/k33pup/Booking/hotel_svc/internal/pkg/repository/postgres"
+	impl "github.com/k33pup/Booking/hotel_svc/internal/pkg/transport/grpc"
+	apiv1pb "github.com/k33pup/Booking/hotel_svc/internal/pkg/transport/grpc/generated"
+	"github.com/k33pup/Booking/hotel_svc/internal/usecases"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log/slog"

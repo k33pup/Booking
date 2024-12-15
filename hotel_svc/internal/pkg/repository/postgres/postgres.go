@@ -1,12 +1,12 @@
 package postgres
 
 import (
-	"booking/hotel_svc/internal/domain"
-	"booking/hotel_svc/internal/usecases"
 	"context"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/k33pup/Booking/hotel_svc/internal/domain"
+	"github.com/k33pup/Booking/hotel_svc/internal/usecases"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
