@@ -40,3 +40,4 @@
 Booking Data: хранит данные о бронированиях.
 Hotels Data: хранит данные об отелях и номерах.
 
+<img width="3458" alt="components-diagram" src="https://github.com/user-attachments/assets/7b2e95a9-b4a1-44af-82ff-4fe8e4672e40" />
